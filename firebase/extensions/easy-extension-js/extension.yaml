@@ -4,11 +4,11 @@
 # Identifier for your extension
 # TODO: Replace this with an descriptive name for your extension.
 name: easy-extension
-version: 0.0.2 # Follow semver versioning
+version: 0.0.1 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
-displayName: Firebase Utility Extension
+displayName: Firebase Utility Extensions
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-
@@ -46,10 +46,6 @@ resources:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${YOUR_DOCUMENT_PATH}
       # runtime: "nodejs16"
-
-# In the `params` field, set up your extension's user-configured parameters.
-# Learn more in the docs:
-# https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs:
