@@ -1,25 +1,19 @@
-/*
- * This template contains a HTTP function that
- * responds with a greeting when called
+/**
+ * Import function triggers from their respective submodules:
  *
- * Reference PARAMETERS in your functions code with:
- * `process.env.<parameter-name>`
- * Learn more about building extensions in the docs:
- * https://firebase.google.com/docs/extensions/publishers
+ * const {onCall} = require("firebase-functions/v2/https");
+ * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const functions = require("firebase-functions");
+const {onRequest} = require("firebase-functions/v2/https");
+const logger = require("firebase-functions/logger");
 
-exports.greetTheWorld = functions.https.onRequest((req, res) => {
-  // Here we reference a user-provided parameter
-  // (its value is provided by the user during installation)
-  const consumerProvidedGreeting = process.env.GREETING;
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
 
-  // And here we reference an auto-populated parameter
-  // (its value is provided by Firebase after installation)
-  const instanceId = process.env.EXT_INSTANCE_ID;
-
-  const greeting = `${consumerProvidedGreeting} World from ${instanceId}`;
-
-  res.send(greeting);
-});
+// exports.helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });

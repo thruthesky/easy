@@ -1,25 +1,30 @@
 {
-  "name": "greet-the-world",
-  "description": "Greet the world",
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test:index": "mocha --watch --watch-files src/**/*.js,tests/**/*.js tests/index.spec.js",
+    "mocha": "mocha --watch --watch-files src/**/*.js,tests/**/*.js"
+  },
+  "engines": {
+    "node": "18"
+  },
   "main": "index.js",
   "dependencies": {
-    "firebase-admin": "^11.5.0",
-    "firebase-functions": "^4.2.0"
+    "firebase-admin": "^11.10.1",
+    "firebase-functions": "^4.3.1"
   },
   "devDependencies": {
-    "eslint": "^8.15.1",
-    "eslint-plugin-promise": "^6.0.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-plugin-import": "^2.25.4",
-    "axios": "^1.3.2",
     "chai": "^4.3.7",
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0",
     "mocha": "^10.2.0"
-  },
-  "scripts": {
-    "lint": "./node_modules/.bin/eslint --max-warnings=0 ..",
-    "lint:fix": "./node_modules/.bin/eslint --max-warnings=0 --fix ..",
-    "mocha": "mocha '**/*.spec.js'",
-    "test": "(cd integration-tests && firebase emulators:exec 'npm run mocha' -P demo-test)"
   },
   "private": true
 }
