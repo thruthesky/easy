@@ -29,5 +29,6 @@
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
-  ]
+  ],
+  "engines": {"node": "18"}
 }

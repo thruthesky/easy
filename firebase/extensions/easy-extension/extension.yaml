@@ -18,7 +18,7 @@ license: Apache-2.0 # https://spdx.org/licenses/
 
 # Public URL for the source code of your extension.
 # TODO:  Replace this with your GitHub repo.
-sourceUrl: https://github.com/thruthesky/easy/firebase/extensions/easy-extension
+sourceUrl: https://github.com/thruthesky/easy/tree/main/firebase/extensions/easy-extension
 
 # Specify whether a paid-tier billing plan is required to use your extension.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/reference/extension-yaml#billing-required-field

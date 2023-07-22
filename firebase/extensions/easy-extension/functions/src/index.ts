@@ -9,7 +9,7 @@
 
 import * as logger from "firebase-functions/logger";
 
-import {initializeApp} from "firebase-admin/app";
+import { initializeApp } from "firebase-admin/app";
 import {
   QueryDocumentSnapshot, WriteResult,
   // , getFirestore,
@@ -41,5 +41,6 @@ export const makeUppercase = onDocumentCreated(
     return event.data?.ref.set({
       uppercase: data.original.toUpperCase() + " <-- up ^^;...",
     },
-    {merge: true});
+      { merge: true });
   });
+
