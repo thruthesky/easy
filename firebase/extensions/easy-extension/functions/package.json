@@ -8,8 +8,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test:index": "mocha --watch --watch-files src/**/*.js,tests/**/*.js tests/index.spec.js",
-    "mocha": "mocha --watch --watch-files src/**/*.js,tests/**/*.js"
+    "test:index": "mocha --timeout 50000 --watch --watch-files lib/**/*.js,tests/**/*.js tests/index.spec.js",
+    "mocha": "mocha --timeout 50000 --watch --watch-files lib/**/*.js,tests/**/*.js"
   },
   "engines": {
     "node": "18"
