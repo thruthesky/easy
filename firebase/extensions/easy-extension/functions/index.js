@@ -1,19 +1,27 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
+const admin = require("firebase-admin");
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+admin.initializeApp();
+
+// FirestoreEvent 는 DocumentSnapshot 과 documentId 를 가지는 타입이다. Definition 을 참고한다.
+export const makeUppercase = onDocumentCreated(
+  "messages/{documentId}",
+  (event) => {
+    // 문서 데이터. 적절한 타이핑 필요
+    const data = event.data.data();
+    // 문서 아이디.
+    const documentId = event.params.documentId;
+
+    // 로그 기록
+    logger.log("Uppercasing ..", documentId, data.original);
+
+    return event.data.ref.set(
+      {
+        uppercase: data.original.toUpperCase() + " <-- up ^^;...",
+      },
+      { merge: true }
+    );
+  }
+);

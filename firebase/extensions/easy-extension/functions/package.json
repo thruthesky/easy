@@ -6,11 +6,12 @@
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
+    "deploy": "eslint --fix . && firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test:index": "mocha --timeout 50000 --watch --watch-files lib/**/*.js,tests/**/*.js tests/index.spec.js",
     "mocha": "mocha --timeout 50000 --watch --watch-files lib/**/*.js,tests/**/*.js"
   },
+  "type": "module",
   "engines": {
     "node": "18"
   },
