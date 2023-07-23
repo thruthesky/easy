@@ -4,7 +4,7 @@
 # Identifier for your extension
 # TODO: Replace this with an descriptive name for your extension.
 name: easy-extension
-version: 0.0.6 # Follow semver versioning
+version: 0.0.7 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -46,7 +46,7 @@ resources:
     properties:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${DOCUMENT_PATH}
       # runtime: "nodejs16"
 
 # In the `params` field, set up your extension's user-configured parameters.
@@ -57,9 +57,9 @@ resources:
 # Learn more in the docs:
 # https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 params:
-  - param: COLLECTION_PATH
+  - param: DOCUMENT_PATH
     label: Cloud Firestore collection path
     description: Where do you want to watch for the command document creation?
     type: string
-    default: easy_commands # Specifying a default is optional.
+    default: easy-commands/{documentId} # Specifying a default is optional.
     required: true

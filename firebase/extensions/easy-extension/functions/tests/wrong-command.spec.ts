@@ -28,7 +28,7 @@ describe("Wrong command", () => {
         const db = getFirestore();
 
         // Create command doc
-        const ref = await db.collection("easy_commands").add({
+        const ref = await db.collection("easy-commands").add({
             command: '...wrong-command...'
         });
 

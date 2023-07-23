@@ -2,10 +2,10 @@
 
 ## Overview
 
-- When a document is created under the `easy_commands` collection,
+- When a document is created under the `easy-commands` collection,
   - The firebase background function will execute the comamnd specified in `{ command: ... }`.
 
-- The `easy_commands` collection should be protected by security rules for the adming-create-only permission.
+- The `easy-commands` collection should be protected by security rules for the adming-create-only permission.
 
 
 ## Command list
@@ -28,7 +28,7 @@
 - Example
 
 
-- Create a document under `/easy_commands` collection with the following properties
+- Create a document under `/easy-commands` collection with the following properties
   - `uid` - `[string]`. The user uid to apply the claims.
   - `admin` - `[boolean]`. Set true if the user is admin. (optional).
   - `block` - `[boolean]`. Set true if the user is blocked. (optional).

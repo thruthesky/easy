@@ -1,3 +1,8 @@
+## Version 0.0.7
+
+fix - command collection path
+
+
 ## Version 0.0.6
 
 fix - command collection path

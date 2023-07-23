@@ -14,7 +14,7 @@ https://firebase.google.com/docs/extensions/publishers/user-documentation#writin
 
 You can test out this extension right away!
 
-Simply create a document under `easy_commands` with the following fields.
+Simply create a document under `easy-commands` with the following fields.
 
 ```json
 {

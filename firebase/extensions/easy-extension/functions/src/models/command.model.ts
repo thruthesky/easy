@@ -5,13 +5,13 @@ import { UserModel } from "./user.model";
 /**
  * CommandModel
  *
- * Execute a command from easy_commands collection.
+ * Execute a command from easy-commands collection.
  * 
  * TODO : More error tests like options validation, etc.
  */
 export class CommandModel {
     /**
-             * Execute a command from easy_commands collection.
+             * Execute a command from easy-commands collection.
              *
              * @param snapshot DocumentStanpshot that contains a command
              * @returns Promise
