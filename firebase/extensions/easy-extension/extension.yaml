@@ -4,7 +4,7 @@
 # Identifier for your extension
 # TODO: Replace this with an descriptive name for your extension.
 name: easy-extension
-version: 0.0.3 # Follow semver versioning
+version: 0.0.4 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -58,8 +58,8 @@ resources:
 # https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 params:
   - param: YOUR_DOCUMENT_PATH
-    label: Cloud Firestore path
-    description: Where do you want to watch for changes?
+    label: Cloud Firestore collection path
+    description: Where do you want to watch for the command document creation?
     type: string
-    default: easy-extension/{documentID} # Specifying a default is optional.
+    default: easy-commands # Specifying a default is optional.
     required: true

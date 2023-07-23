@@ -1,3 +1,7 @@
+## Version 0.0.4
+
+fix - collection path label has changed.
+
 ## Version 0.0.3
 
 feature - `update_user_claims` command added.
