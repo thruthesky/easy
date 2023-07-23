@@ -14,8 +14,29 @@ https://firebase.google.com/docs/extensions/publishers/user-documentation#writin
 
 You can test out this extension right away!
 
-Visit the following URL:
-${function:greetTheWorld.url}
+Simply create a document under `easy-commands` with the following fields.
+
+```json
+{
+    "commands": "update_user_claims",
+    "options": {
+        "uid": "xxx",
+        "level": 1
+    }
+}
+```
+
+A few moments later, you will the that the document is updated 
+
+```json
+{
+  "response": {
+    "claims": { "... updated claims ..." },
+    "status": "success",
+    "timestamp": "Timestamp { _seconds: xxx, _nanoseconds: xxx }"
+  }
+}
+```
 
 # Using the extension
 

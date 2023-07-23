@@ -77,9 +77,11 @@ describe("User custom claims", () => {
     const afterSnapshot = await againRef.get();
     const afterDocData = afterSnapshot.data() as Command;
 
+    console.log(afterDocData)
     // Test
-    expect(afterDocData.response?.level).equal(14);
-    expect(afterDocData.response?.groupName).equal('writer');
+    expect(afterDocData.response?.status).equal('success');
+    expect(afterDocData.response?.claims.level).equal(14);
+    expect(afterDocData.response?.claims.groupName).equal('writer');
 
   });
 });

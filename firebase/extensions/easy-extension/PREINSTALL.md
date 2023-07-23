@@ -7,9 +7,9 @@ Learn more about writing a PREINSTALL.md file in the docs:
 https://firebase.google.com/docs/extensions/publishers/user-documentation#writing-preinstall
 -->
 
-Use this extension to send a friendly greeting.
+Use this extension to many your firebase easily.
 
-When triggered by an HTTP request, this extension responds with your specified friendly greeting.
+When documents under Firestore created, this extension runs a command as described in the document. For instance, you can set(or update) Firebase Auth Custom Claims with `update_custom_claims` command with claim options.
 
 <!-- We recommend keeping the following section to explain how billing for Firebase Extensions works -->
 # Billing
