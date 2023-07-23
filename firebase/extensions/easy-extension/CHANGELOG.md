@@ -1,3 +1,12 @@
+## Version 0.0.6
+
+fix - command collection path
+
+
+## Version 0.0.5
+
+fix - source code url
+
 ## Version 0.0.4
 
 fix - collection path label has changed.

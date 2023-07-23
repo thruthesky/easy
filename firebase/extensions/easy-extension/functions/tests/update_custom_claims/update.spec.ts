@@ -33,7 +33,7 @@ describe("User custom claims", () => {
         const db = getFirestore();
 
         // Create command doc
-        const ref = await db.collection("easy-commands").add({
+        const ref = await db.collection("easy_commands").add({
             command: 'update_custom_claims',
             options: {
                 uid: user.uid,
@@ -56,7 +56,7 @@ describe("User custom claims", () => {
 
 
         // Do it again with different options
-        const againRef = await db.collection("easy-commands").add({
+        const againRef = await db.collection("easy_commands").add({
             command: 'update_custom_claims',
             options: {
                 uid: user.uid,

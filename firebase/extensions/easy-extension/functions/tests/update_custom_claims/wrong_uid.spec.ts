@@ -28,7 +28,7 @@ describe("User custom claims - wrong uid", () => {
         const db = getFirestore();
 
         // Create command doc
-        const ref = await db.collection("easy-commands").add({
+        const ref = await db.collection("easy_commands").add({
             command: 'update_custom_claims',
             options: {
                 uid: '.... wrong uid ....',
