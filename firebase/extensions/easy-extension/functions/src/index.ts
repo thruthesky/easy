@@ -1,7 +1,7 @@
 
 import * as logger from "firebase-functions/logger";
 
-import { initializeApp } from "firebase-admin/app";
+import {initializeApp} from "firebase-admin/app";
 import {
   DocumentSnapshot,
   // QueryDocumentSnapshot,
@@ -12,8 +12,8 @@ import {
   // FirestoreEvent,
   onDocumentCreated,
 } from "firebase-functions/v2/firestore";
-import { CommandModel } from "./models/command.model";
-import { FirestoreEventType } from "./defines";
+import {CommandModel} from "./models/command.model";
+import {FirestoreEventType} from "./defines";
 
 
 initializeApp();

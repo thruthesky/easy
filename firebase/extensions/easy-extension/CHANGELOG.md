@@ -1,3 +1,8 @@
+## Version 0.0.8
+
+fix - function name
+
+
 ## Version 0.0.7
 
 fix - command collection path
