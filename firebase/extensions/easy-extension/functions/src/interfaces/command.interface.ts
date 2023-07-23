@@ -6,7 +6,13 @@ export interface Command {
     options: UpdateCustomClaimsOptions | UserExistsOptions;
 
     // result of the command execution.
-    response?: Record<string, any>;
+    response?: {
+        status: "success" | "error";
+        claims?: Record<string, any>;
+        code?: string;
+        message?: string;
+        timestamp: FirebaseFirestore.FieldValue;
+    };
 }
 
 export interface UpdateCustomClaimsOptions {

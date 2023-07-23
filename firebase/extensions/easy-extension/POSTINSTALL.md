@@ -40,9 +40,9 @@ A few moments later, you will the that the document is updated
 
 # Using the extension
 
-When triggered by an HTTP request, this extension responds with the following specified greeting: "${param:GREETING} World from ${param:EXT_INSTANCE_ID}".
+When a command document is created, this extension will execute the specified command.
 
-To learn more about HTTP functions, visit the [functions documentation](https://firebase.google.com/docs/functions/http-events).
+To learn more about this extension, visit the [Easy Extension Document Site](https://github.com/thruthesky/easy/tree/main/firebase/extensions/easy-extension).
 
 <!-- We recommend keeping the following section to explain how to monitor extensions with Firebase -->
 # Monitoring
