@@ -1,6 +1,9 @@
 **/service-account.json
 service-account.json
 
+
+**/.DS_Store
+
 # Logs
 logs
 *.log

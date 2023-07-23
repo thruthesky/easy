@@ -1,0 +1,2 @@
+# Easy Firebase Functions
+

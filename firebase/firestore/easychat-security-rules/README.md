@@ -1,0 +1,2 @@
+# Easychat security rules
+
