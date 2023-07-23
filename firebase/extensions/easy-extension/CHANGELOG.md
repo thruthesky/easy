@@ -1,7 +1,12 @@
-## Version 0.0.3
+## Version 0.1.3
 
-- Adding custom claims function.
+feature - `update_user_claims` command added.
 
-## Version 0.0.2
+## Version 0.1.2
 
-- Simple command check
+
+fixed - `update_user_claims` test code.
+
+## Version 0.1.1
+
+Initial release of the easy extension.
