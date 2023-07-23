@@ -58,7 +58,7 @@ resources:
 # https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 params:
   - param: DOCUMENT_PATH
-    label: Cloud Firestore collection path
+    label: Cloud Firestore command document path
     description: Where do you want to watch for the command document creation?
     type: string
     default: easy-commands/{documentId} # Specifying a default is optional.
