@@ -7,7 +7,7 @@
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
-    "deploy": "eslint --fix --ext .js,.ts . && npm run build && firebase deploy --only functions",
+    "deploy": "eslint --fix --ext .js,.ts . && npm run build && firebase deploy --only functions:easyCommand",
     "logs": "firebase functions:log",
     "test:index": "mocha --timeout 50000 --require ts-node/register --watch --watch-files src/**/*.ts,tests/**/*.ts tests/index.spec.ts",
     "mocha": "mocha --timeout 50000 --require ts-node/register --watch --watch-files src/**/*.ts,tests/**/*.ts"

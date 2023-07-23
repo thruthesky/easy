@@ -35,9 +35,9 @@ describe("User custom claims", () => {
 
 
     const db = getFirestore();
-    const ref = db.collection("easy-commands").doc();
 
-    await ref.set({
+    // Create command doc
+    const ref = await db.collection("easy-commands").add({
       command: 'update_custom_claims',
       options: {
         uid: user.uid,
@@ -45,16 +45,41 @@ describe("User custom claims", () => {
       }
     } satisfies Command);
 
+    // Get doc
     const snapshot = await ref.get();
 
+    // Execute command
     await CommandModel.execute(snapshot);
 
-
+    // Check claims
     const claims = await UserModel.getCustomClaims(user.uid);
 
-    console.log(claims)
+    // Test
     expect(claims?.level).equal(13);
 
+
+
+    // Do it again with different options
+    const againRef = await db.collection("easy-commands").add({
+      command: 'update_custom_claims',
+      options: {
+        uid: user.uid,
+        level: 14,
+        groupName: 'writer'
+      }
+    } satisfies Command);
+
+
+    // Execute command
+    await CommandModel.execute(await againRef.get());
+
+    // Get doc after command execution
+    const afterSnapshot = await againRef.get();
+    const afterDocData = afterSnapshot.data() as Command;
+
+    // Test
+    expect(afterDocData.response?.level).equal(14);
+    expect(afterDocData.response?.groupName).equal('writer');
 
   });
 });

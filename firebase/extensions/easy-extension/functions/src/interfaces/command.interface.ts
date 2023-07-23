@@ -1,9 +1,12 @@
 export interface Command {
     // command list
-    command: 'update_custom_claims' | 'user_exists';
+    command: "update_custom_claims" | "user_exists";
 
     // command Options
     options: UpdateCustomClaimsOptions | UserExistsOptions;
+
+    // result of the command execution.
+    response?: Record<string, any>;
 }
 
 export interface UpdateCustomClaimsOptions {
@@ -16,7 +19,7 @@ export interface UpdateCustomClaimsOptions {
 }
 
 export interface UserExistsOptions {
-    by: 'uid' | 'email' | 'phoneNumber';
+    by: "uid" | "email" | "phoneNumber";
     value: string;
 }
 
