@@ -1,3 +1,8 @@
+## Version 0.0.9
+
+fix - configuration
+
+
 ## Version 0.0.8
 
 fix - function name
