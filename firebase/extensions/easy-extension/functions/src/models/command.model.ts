@@ -6,14 +6,16 @@ import { UserModel } from "./user.model";
  * CommandModel
  *
  * Execute a command from easy-commands collection.
+ * 
+ * TODO : More error tests like options validation, etc.
  */
 export class CommandModel {
     /**
-           * Execute a command from easy-commands collection.
-           *
-           * @param snapshot DocumentStanpshot that contains a command
-           * @returns Promise
-           */
+             * Execute a command from easy-commands collection.
+             *
+             * @param snapshot DocumentStanpshot that contains a command
+             * @returns Promise
+             */
     static async execute(snapshot: DocumentSnapshot): Promise<WriteResult | undefined> {
         const command: Command = snapshot.data() as Command;
         const ref = snapshot.ref;
@@ -21,7 +23,6 @@ export class CommandModel {
 
 
         try {
-
             if (command.command === "update_custom_claims") {
                 const options = command.options as UpdateCustomClaimsOptions;
                 await UserModel.updateCustomClaims(options);
@@ -49,8 +50,7 @@ export class CommandModel {
             }
 
             throw new Error("execution/command-not-found");
-        }
-        catch (error: any) {
+        } catch (error: any) {
             let code = "execution/error";
             let message = "command execution error";
             if (error?.errorInfo) {
