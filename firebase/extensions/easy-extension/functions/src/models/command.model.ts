@@ -1,6 +1,7 @@
 import {DocumentSnapshot, FieldValue, WriteResult} from "firebase-admin/firestore";
 import {Command, UpdateCustomClaimsOptions} from "../interfaces/command.interface";
 import {UserModel} from "./user.model";
+import * as functions from "firebase-functions";
 
 /**
  * CommandModel
@@ -29,11 +30,11 @@ export class CommandModel {
 
         return await ref.update({
           response:
-                    {
-                      status: "success",
-                      claims: await UserModel.getCustomClaims(options.uid),
-                      timestamp: FieldValue.serverTimestamp(),
-                    },
+          {
+            status: "success",
+            claims: await UserModel.getCustomClaims(options.uid),
+            timestamp: FieldValue.serverTimestamp(),
+          },
         });
       } else if (command.command === "user_exists") {
         //   const uid = command.options.uid;
@@ -51,6 +52,7 @@ export class CommandModel {
 
       throw new Error("execution/command-not-found");
     } catch (error: any) {
+      // get error
       let code = "execution/error";
       let message = "command execution error";
       if (error?.errorInfo) {
@@ -59,14 +61,21 @@ export class CommandModel {
       } else {
         code = error.message;
       }
+      // log error
+      functions.logger.error(
+        code,
+        message,
+        command
+      );
+      // report
       return await ref.update({
         response:
-                {
-                  status: "error",
-                  code,
-                  message,
-                  timestamp: FieldValue.serverTimestamp(),
-                },
+        {
+          status: "error",
+          code,
+          message,
+          timestamp: FieldValue.serverTimestamp(),
+        },
       });
     }
   }

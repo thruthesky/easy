@@ -14,5 +14,12 @@
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
-  ]
+  ],
+  "extensions": {
+    "easy-extension": "jaehosong/easy-extension@^0.0.9"
+  }
 }
+
+
+
+
