@@ -18,6 +18,12 @@ class ChatRoomListTile extends StatelessWidget {
         if (joinOnEnter) EasyChat.instance.joinRoom(room: room);
         EasyChat.instance.showChatRoom(context: context, room: room);
       },
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ChatRoomNoOfNewMessagesText(room: room),
+        ],
+      ),
     );
   }
 }

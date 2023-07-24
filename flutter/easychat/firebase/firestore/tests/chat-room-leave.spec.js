@@ -52,7 +52,7 @@ describe("Chat room leave, and kickout", () => {
     });
 
 
-    it("Master can remove a user from user list -succeed", async () => {
+    it("Master can remove a user from user list - succeed", async () => {
 
         // create a chat room
         const ref = await admin()
@@ -67,7 +67,7 @@ describe("Chat room leave, and kickout", () => {
         )
     });
 
-    it("Moderator can remove a user from user list -succeed", async () => {
+    it("Moderator can remove a user from user list - succeed", async () => {
         // create a chat room
         const ref = await admin()
             .collection("easychat")
