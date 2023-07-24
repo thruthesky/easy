@@ -43,9 +43,9 @@ service cloud.firestore {
       function isOpen() {
         return 'open' in resource.data && resource.data.open;
       }
-      // function isGroupChat() {
-      //   return 'group' in resource.data && resource.data.group;
-      // }
+      function isGroupChat() {
+        return 'group' in resource.data && resource.data.group;
+      }
       // function isModifyingUsers() {
       //   return 'users' in request.resource.data;
       // }
@@ -64,9 +64,9 @@ service cloud.firestore {
         required(['master', 'createdAt', 'group', 'open', 'users'])
         &&
         (
-          (willBeSingleChat() && usersSize() == 2) // if it's a single chat, there must be 2 members of the room.
+          (willBeSingleChat() && usersSizeAfterSave() == 2) // if it's a single chat, there must be 2 members of the room.
           || 
-          (willBeGroupChat() && usersSize() == 1) // if it's a group, there must have only one member
+          (willBeGroupChat() && usersSizeAfterSave() == 1) // if it's a group, there must have only one member
         )
         &&
         // The master uid must exists in the users field.
@@ -82,7 +82,18 @@ service cloud.firestore {
         ||
         isLeaving()
         ||
-        ( isRoomUser() && onlyUpdating(['lastMessage']) )
+        ( isRoomUser()
+          && 
+          (
+            onlyUpdating(['lastMessage', 'noOfNewMessages'])
+            ||
+            (
+              isOpen()
+              &&
+              isGroupChat()
+            )
+          )
+        )
       ;
 
 
@@ -159,11 +170,26 @@ function willBeSingleChat() {
   return request.resource.data.group == false;
 }
 
-// Returns the number of users in the room. Count without uinique uids.
+
+
+// Returns the number of users in the room AFTER save. Count without uinique uids.
 // ! After save
-function usersSize() {
+function usersSizeAfterSave() {
   return request.resource.data.users.toSet().size();
 }
+
+
+// Adding an element to the array field.
+//
+// This must add an elemnt only. Not replacing any other element.
+function onlyAdding(arrayField, element) {
+  return
+    request.resource.data[arrayField].toSet().difference(resource.data[arrayField].toSet()) == [element].toSet() 
+    &&
+    resource.data[arrayField].toSet().intersection(request.resource.data[arrayField].toSet()) == resource.data[arrayField].toSet()
+  ;
+}
+
 
 // Returns true if the fields are updated in the document.
 //
