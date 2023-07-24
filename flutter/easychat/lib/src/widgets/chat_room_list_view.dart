@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easychat/easychat.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -68,8 +69,11 @@ class ChatRoomListViewState extends State<ChatRoomListView> {
     if (EasyChat.instance.loggedIn == false) {
       return const Center(child: Text('Error - Please, login first to use Easychat'));
     }
+    // Returning a List View of Chat Rooms
     return FirestoreListView(
-      query: EasyChat.instance.chatCol.where('users', arrayContains: EasyChat.instance.uid),
+      query: EasyChat.instance.chatCol
+          .where('users', arrayContains: EasyChat.instance.uid)
+          .orderBy('lastMessage.createdAt', descending: true),
       itemBuilder: (context, QueryDocumentSnapshot snapshot) {
         final room = ChatRoomModel.fromDocumentSnapshot(snapshot);
         if (widget.itemBuilder != null) {
@@ -186,42 +190,116 @@ class ChatMembersButton extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Chat Members'),
               ),
-              body: ListView.builder(
-                itemCount: room.users.length,
-                itemBuilder: (context, index) {
-                  return FutureBuilder(
-                    future: EasyChat.instance.getUser(room.users[index]),
-                    builder: (context, userSnapshot) {
-                      return ListTile(
-                        title: Text(userSnapshot.data?.displayName ?? ''),
-                        subtitle: Text(userSnapshot.data?.uid ?? ''),
-                        leading: (userSnapshot.data?.photoUrl ?? '').isEmpty
-                            ? null
-                            : CircleAvatar(
-                                backgroundImage: NetworkImage(userSnapshot.data!.photoUrl),
-                              ),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text(userSnapshot.data?.displayName ?? userSnapshot.data?.uid ?? ''),
-                                // TODO check first if Moderator
-                                content: TextButton(
-                                  child: const Text('Kick Out'),
-                                  onPressed: () {
-                                    debugPrint('Kicking this person out ${userSnapshot.data?.displayName}');
+              body: ChatRoomMembersListView(room: room),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class ChatRoomMembersListView extends StatefulWidget {
+  const ChatRoomMembersListView({
+    super.key,
+    required this.room,
+  });
+
+  final ChatRoomModel room;
+
+  @override
+  State<ChatRoomMembersListView> createState() => _ChatRoomMembersListViewState();
+}
+
+class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.room.users.length, // Manage the state of this
+      itemBuilder: (context, index) {
+        return FutureBuilder(
+          future: EasyChat.instance.getUser(widget.room.users[index]),
+          builder: (context, userSnapshot) {
+            return ListTile(
+              title: Text(userSnapshot.data?.displayName ?? ''),
+              subtitle: Text(userSnapshot.data?.uid ?? ''),
+              leading: (userSnapshot.data?.photoUrl ?? '').isEmpty
+                  ? null
+                  : CircleAvatar(
+                      backgroundImage: NetworkImage(userSnapshot.data!.photoUrl),
+                    ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text(userSnapshot.data?.displayName ?? userSnapshot.data?.uid ?? ''),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (EasyChat.instance.canRemoveUserFromRoom(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                            TextButton(
+                              // If we have to separate this UI, we have to remanage the state
+                              child: Text(FirebaseAuth.instance.currentUser!.uid == userSnapshot.data!.uid
+                                  ? 'Leave Group'
+                                  : 'Remove from the Group'),
+                              onPressed: () {
+                                EasyChat.instance.removeUserFromRoom(
+                                  room: widget.room,
+                                  uid: userSnapshot.data!.uid,
+                                  callback: () {
+                                    setState(() {
+                                      widget.room.users.remove(userSnapshot.data!.uid);
+                                    });
+                                    Navigator.pop(context);
                                   },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
+                                );
+                              },
+                            ),
+                          ],
+                          if (EasyChat.instance.canSetUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                            TextButton(
+                              // TODO should separate to manage the state
+                              child: const Text("Add as a Moderator"),
+                              onPressed: () {
+                                EasyChat.instance.setUserAsModerator(
+                                  room: widget.room,
+                                  uid: userSnapshot.data!.uid,
+                                  callback: () {
+                                    setState(() {
+                                      widget.room.moderators.remove(userSnapshot.data!.uid);
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                );
+                                debugPrint('Adding as Moderator');
+                              },
+                            )
+                          ],
+                          if (EasyChat.instance.canRemoveUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                            TextButton(
+                              child: const Text("Remove as a Moderator"),
+                              onPressed: () {
+                                EasyChat.instance.removeUserAsModerator(
+                                  room: widget.room,
+                                  uid: userSnapshot.data!.uid,
+                                  callback: () {
+                                    setState(() {
+                                      widget.room.moderators.remove(userSnapshot.data!.uid);
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                );
+                                debugPrint('Removing as Moderator');
+                              },
+                            )
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
             );
           },
         );

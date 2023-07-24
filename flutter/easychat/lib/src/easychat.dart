@@ -134,6 +134,55 @@ class EasyChat {
     });
   }
 
+  // TODO | For confirmation, if a Moderator was removed in the group by the Master, should we also remove in Moderators?
+  Future<void> removeUserFromRoom({required ChatRoomModel room, required String uid, Function()? callback}) async {
+    await roomDoc(room.id).update({
+      'users': FieldValue.arrayRemove([uid])
+    });
+    callback?.call();
+  }
+
+  Future<void> setUserAsModerator({required ChatRoomModel room, required String uid, Function()? callback}) async {
+    await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayUnion([uid])
+    });
+    callback?.call();
+  }
+
+  Future<void> removeUserAsModerator({required ChatRoomModel room, required String uid, Function()? callback}) async {
+    await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayRemove([uid])
+    });
+    callback?.call();
+  }
+
+  isModerator({required ChatRoomModel room, required String uid}) {
+    return room.moderators.contains(uid);
+  }
+
+  isMaster({required ChatRoomModel room, required String uid}) {
+    return room.master == uid;
+  }
+
+  canRemoveUserFromRoom({required ChatRoomModel room, required String uid}) {
+    return (isModerator(room: room, uid: FirebaseAuth.instance.currentUser!.uid) ||
+            isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) ||
+            FirebaseAuth.instance.currentUser!.uid == uid) &&
+        !isMaster(room: room, uid: uid);
+  }
+
+  canSetUserAsModerator({required ChatRoomModel room, required String uid}) {
+    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
+        !isMaster(room: room, uid: uid) &&
+        !isModerator(room: room, uid: uid);
+  }
+
+  canRemoveUserAsModerator({required ChatRoomModel room, required String uid}) {
+    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
+        !isMaster(room: room, uid: uid) &&
+        isModerator(room: room, uid: uid);
+  }
+
   Future<void> sendMessage({
     required ChatRoomModel room,
     String? text,
@@ -141,14 +190,25 @@ class EasyChat {
     String? fileUrl,
     String? fileName,
   }) async {
-    await messageCol(room.id).add({
+    final chatMessage = {
       if (text != null) 'text': text,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (fileUrl != null) 'fileUrl': fileUrl,
       if (fileName != null) 'fileName': fileName,
       'createdAt': FieldValue.serverTimestamp(),
       'senderUid': FirebaseAuth.instance.currentUser!.uid,
-    });
+    };
+    await messageCol(room.id).add(chatMessage);
+    updateRoomNewMessagesDetails(room: room, lastMessage: chatMessage);
+  }
+
+  Future<void> updateRoomNewMessagesDetails({required ChatRoomModel room, Map<String, Object>? lastMessage}) async {
+    Map<Object, Object> updateNoOfMessages = {};
+    for (var uid in room.users) {
+      updateNoOfMessages[uid] = FieldValue.increment(1);
+    }
+    updateNoOfMessages[FirebaseAuth.instance.currentUser!.uid] = 0;
+    await roomDoc(room.id).set({'noOfNewMessages': updateNoOfMessages, 'lastMessage': lastMessage}, SetOptions(merge: true));
   }
 
   /// Get other user uid
