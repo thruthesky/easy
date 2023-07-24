@@ -30,6 +30,8 @@ export const easyCommand = functions.firestore.document("easy-commands/{document
   .onWrite(async (change: functions.Change<DocumentSnapshot>): Promise<WriteResult | undefined | null> => {
     const changeType = getChangeType(change);
 
+    logger.info('--> onDocumentCreated(easy-commands/{documentId}) onWrite() start with changeType;', changeType);
+
     switch (changeType) {
       case ChangeType.CREATE: {
         logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() create -> change.after.id;", change.after.id);
