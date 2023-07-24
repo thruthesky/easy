@@ -149,6 +149,18 @@ class EasyChat {
       'createdAt': FieldValue.serverTimestamp(),
       'senderUid': FirebaseAuth.instance.currentUser!.uid,
     });
+    setNoOfNewMessages(room: room);
+  }
+
+  Future<void> setNoOfNewMessages({
+    required ChatRoomModel room,
+  }) async {
+    Map<Object, Object> updateNoOfMessages = {};
+    for (var uid in room.users) {
+      updateNoOfMessages[uid] = FieldValue.increment(1);
+    }
+    updateNoOfMessages[FirebaseAuth.instance.currentUser!.uid] = 0;
+    await roomDoc(room.id).set({'noOfNewMessages': updateNoOfMessages}, SetOptions(merge: true));
   }
 
   /// Get other user uid
