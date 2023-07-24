@@ -54,7 +54,7 @@ resources:
     properties:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{documentId}
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/easy-commands/{documentId}
       runtime: "nodejs18"
 
 # In the `params` field, set up your extension's user-configured parameters.
@@ -65,9 +65,22 @@ resources:
 # Learn more in the docs:
 # https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 params:
-  - param: COLLECTION_NAME
+  - param: USER_COLLECTION_NAME
     label: Collection path
-    description: Where do you want to watch for the command document creation?
+    description: Where do you store user document?
     type: string
-    default: easy-commands # Specifying a default is optional.
+    default: users # Specifying a default is optional.
     required: false
+
+  - param: SET_DISABLED_USER_FIELD
+    label: Set disabled field in user document.
+    description: >-
+      If set to \"Yes\", disabled field will be added if the user is disabled. Note that, the document id must be same as user's uid. The document will be created if it does not exist.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true

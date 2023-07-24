@@ -1,10 +1,11 @@
-import {DocumentSnapshot} from "firebase-admin/firestore";
+import { DocumentReference, DocumentSnapshot, FieldValue } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
+import config from "./config";
 
 export enum ChangeType {
-    CREATE,
-    DELETE,
-    UPDATE,
+  CREATE,
+  DELETE,
+  UPDATE,
 }
 
 
@@ -17,3 +18,18 @@ export const getChangeType = (change: functions.Change<DocumentSnapshot>) => {
   }
   return ChangeType.UPDATE;
 };
+
+
+export const success = async (ref: DocumentReference, response: Record<string, any>) => {
+  return await ref.update({
+    config: config,
+    response:
+    {
+      ...{
+        status: "success",
+        timestamp: FieldValue.serverTimestamp(),
+      },
+      ...response,
+    },
+  });
+}

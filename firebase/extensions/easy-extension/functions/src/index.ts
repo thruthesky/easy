@@ -37,8 +37,6 @@ export const easyCommand = functions.firestore.document("easy-commands/{document
         logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() create -> change.after.id;", change.after.id);
         const data = change.after.data();
         logger.info("--> onDocumentCreated(easy-commands/{documentId})  onWrite() data;", data);
-        // logger.info("--> onDocumentCreated(easy-commands/{documentId}) return undefined;");
-        // return Promise.resolve(undefined);
         return CommandModel.execute(change.after);
       }
       case ChangeType.DELETE:
