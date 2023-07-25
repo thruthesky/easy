@@ -52,10 +52,37 @@ resources:
     description: >-
       Cloud Firestore event trigger function that responds for a specified command to manage your Firebase.
     properties:
+      location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/easy-commands/{documentId}
-      runtime: "nodejs18"
+      runtime: "nodejs16"
+
+  - name: createUserDocument
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A function that is triggered when a new user is created in Firebase
+      Authentication. It creates a user document in a specified Firestore
+      collection and populates it with all the possible fields from the user record.
+    properties:
+      location: ${LOCATION}
+      eventTrigger:
+        eventType: providers/firebase.auth/eventTypes/user.create
+        resource: projects/${PROJECT_ID}
+      runtime: "nodejs16"
+
+  - name: deleteUserDocument
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A function that is triggered when a user is deleted from Firebase
+      Authentication. If the DELETE_DOCUMENT_ON_USER_DELETE is set to  yes, it deletes the
+      user document from the specified Firestore collection.
+    properties:
+      location: ${LOCATION}
+      eventTrigger:
+        eventType: providers/firebase.auth/eventTypes/user.delete
+        resource: projects/${PROJECT_ID}
+      runtime: "nodejs16"
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs:
@@ -71,6 +98,36 @@ params:
     type: string
     default: users # Specifying a default is optional.
     required: false
+
+  - param: CREATE_USER_DOCUMENT
+    label: Create user document on user create
+    description: >-
+      If set to \"Yes\", the extension will automatically create the
+      Firestore user document when the user is created on Firebase
+      Authentication.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: yes
+    required: true
+
+  - param: DELETE_USER_DOCUMENT
+    label: Delete user document on user delete
+    description: >-
+      If set to \"Yes\", the extension will automatically delete the
+      Firestore user document when the user is deleted from Firebase
+      Authentication.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: yes
+    required: true
 
   - param: SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT
     label: Sync back to user document when custom claims are updated.
@@ -97,3 +154,55 @@ params:
         value: no
     default: yes
     required: true
+
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension?
+      For help selecting a location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    required: true
+    default: us-central1
+    immutable: true

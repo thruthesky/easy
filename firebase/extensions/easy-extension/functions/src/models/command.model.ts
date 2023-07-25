@@ -1,4 +1,4 @@
-import { DocumentSnapshot, WriteResult } from "firebase-admin/firestore";
+import { DocumentSnapshot, FieldValue, WriteResult } from "firebase-admin/firestore";
 import { Command, UpdateCustomClaimsOptions } from "../interfaces/command.interface";
 import { UserModel } from "./user.model";
 import * as functions from "firebase-functions";
@@ -31,36 +31,33 @@ export class CommandModel {
         throw new Error("execution/command-is-undefined");
       }
       else if (command.command === "update_custom_claims") {
-
         const claims = command.claims as UpdateCustomClaimsOptions;
-        // functions.logger.info('---> claims;', claims);
-        await UserModel.updateCustomClaims(command.uid, claims);
+        await UserModel.updateCustomClaims(command.uid!, claims);
         if (Config.syncCustomClaimsToUserDocument) {
-          // functions.logger.info('---> syncCustomClaimsToUserDocument;', Config.syncCustomClaimsToUserDocument);
-          // functions.logger.info('---> setCustomClaims;', claims);
-          // functions.logger.info('---> user collection', Config.userCollectionName);
-          await UserModel.update(command.uid, { claims });
+          await UserModel.update(command.uid!, { claims });
         }
-        return await success(ref, { claims: await UserModel.getCustomClaims(command.uid) });
+        return await success(ref, { claims: await UserModel.getCustomClaims(command.uid!) });
 
-      } else if (command.command === "user_exists") {
-        //   const uid = command.options.uid;
-        //   const exists = await UserModel.exists(uid);
-
-        //   return await ref.update({
-        //     response:
-        //             {
-        //               status: "success",
-        //               exists,
-        //               timestamp: FieldValue.serverTimestamp(),
-        //             },
-        //   });
+      } else if (command.command === "get_user") {
+        const user = await UserModel.getBy(command.by as any, command.value!);
+        return await success(ref, { data: UserModel.popuplateUserFields(user) });
       }
       else if (command.command === "disable_user") {
-        await UserModel.disable(command.uid);
+        await UserModel.disable(command.uid!);
         if (Config.setDisabledUserField) {
-          await UserModel.update(command.uid, { disabled: true });
+          await UserModel.update(command.uid!, { disabled: true });
         }
+        return await success(ref, {});
+      }
+      else if (command.command === "enable_user") {
+        await UserModel.enable(command.uid!);
+        if (Config.setDisabledUserField) {
+          await UserModel.update(command.uid!, { disabled: FieldValue.delete() });
+        }
+        return await success(ref, {});
+      }
+      else if (command.command === "delete_user") {
+        await UserModel.delete(command.uid!);
         return await success(ref, {});
       }
 

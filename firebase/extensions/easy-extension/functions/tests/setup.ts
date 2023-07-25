@@ -22,7 +22,7 @@ export function initFirebaseAdminSDK() {
  * @param options optoins
  * @returns user
  */
-export async function createTestUser(options?: { email?: string | null; password?: string | null }) {
+export async function createTestUser(options?: { email?: string | null; password?: string | null, phoneNumber?: string | null }) {
     if (!options) options = {};
 
     // generate a random email address if one is not provided
@@ -32,9 +32,16 @@ export async function createTestUser(options?: { email?: string | null; password
 
     const password = options.password || "t~12345a";
 
+    // generate a random phone number if one is not provided
+    if (!options?.phoneNumber) {
+        // generate a random 8 digit number using Math.random
+        const num = Math.floor(Math.random() * 90000000) + 10000000;
+        options.phoneNumber = `+8210${num}}`;
+    }
+
     const user = await admin
         .auth()
-        .createUser({ email: options.email, password });
+        .createUser({ email: options.email, password, phoneNumber: options.phoneNumber });
 
     //
     return user;
