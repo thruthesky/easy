@@ -65,19 +65,26 @@ class EasyChat {
     return uids.join('-');
   }
 
-  Future<ChatRoomModel?> getSingleChatRoom(String uid) async {
+  /// Get a chat room with the given user uid (1:1 chat)
+  ///
+  ///
+  Future<ChatRoomModel> getSingleChatRoom(String uid) async {
     final roomId = getSingleChatRoomId(uid);
     final snapshot = await roomDoc(roomId).get();
-    if (!snapshot.exists) return null;
     return ChatRoomModel.fromDocumentSnapshot(snapshot);
   }
 
+  ///
+  ///
+  ///
   Future<ChatRoomModel> getOrCreateSingleChatRoom(String uid) async {
-    final room = await EasyChat.instance.getSingleChatRoom(uid);
-    if (room != null) return room;
-    return await EasyChat.instance.createChatRoom(
-      otherUserUid: uid,
-    );
+    try {
+      return await EasyChat.instance.getSingleChatRoom(uid);
+    } on FirebaseException {
+      return await EasyChat.instance.createChatRoom(
+        otherUserUid: uid,
+      );
+    }
   }
 
   /// Create chat room
@@ -156,19 +163,37 @@ class EasyChat {
     callback?.call();
   }
 
+  /// Return true if the uid is one of the moderators.
   isModerator({required ChatRoomModel room, required String uid}) {
     return room.moderators.contains(uid);
   }
 
+  /// Return true if the uid is the master
   isMaster({required ChatRoomModel room, required String uid}) {
     return room.master == uid;
   }
 
-  canRemoveUserFromRoom({required ChatRoomModel room, required String uid}) {
-    return (isModerator(room: room, uid: FirebaseAuth.instance.currentUser!.uid) ||
-            isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) ||
-            FirebaseAuth.instance.currentUser!.uid == uid) &&
-        !isMaster(room: room, uid: uid);
+  /// Is the user is master or moderator of the room?
+  isAdmin(ChatRoomModel room) {
+    return room.master == uid || room.moderators.contains(uid);
+  }
+
+  ///
+  ///
+  ///
+  canRemove({required ChatRoomModel room, required String uid}) {
+    // One cannot remove himself
+    if (FirebaseAuth.instance.currentUser!.uid == uid) return false;
+
+    // Only master and moderator can remove
+    if (isAdmin(room)) {
+      // admin cannot remove the master or moderators
+      if (isMaster(room: room, uid: uid)) return false;
+      if (isModerator(room: room, uid: uid)) return false;
+      return true;
+    }
+
+    return false;
   }
 
   canSetUserAsModerator({required ChatRoomModel room, required String uid}) {
@@ -213,10 +238,13 @@ class EasyChat {
 
   /// Get other user uid
   ///
-  /// ! It will throw an exception if there is no other user uid. So, use it only in 1:1 chat with minimum of 2 users in array.
+  /// ! If there is no other user uid, it will return current user's uid. This is because one can chat with himself.
   String getOtherUserUid(List<String> users) {
     final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
-    return users.firstWhere((uid) => uid != currentUserUid);
+    return users.firstWhere(
+      (uid) => uid != currentUserUid,
+      orElse: () => currentUserUid,
+    );
   }
 
   Future<UserModel?> getOtherUserFromSingleChatRoom(ChatRoomModel room) async {

@@ -180,14 +180,14 @@ function willBeSingleChat() {
 // Returns the number of users in the room AFTER save. Count without uinique uids.
 // ! After save
 function userSize() {
-  return request.resource.data.users.toSet().size();
+  return request.resource.data.users.size();
 }
 
 
 
 // Adding an element to the array field.
 //
-// This must add an elemnt only. Not replacing any other element.
+// This must add an elemnt only. Not replacing any other element. It does unique element check.
 function onlyAdding(arrayField) {
   return
     resource.data[arrayField].toSet().intersection(request.resource.data[arrayField].toSet()) == resource.data[arrayField].toSet()
