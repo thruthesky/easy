@@ -34,16 +34,12 @@ export const easyCommand = functions.firestore.document("easy-commands/{document
 
     switch (changeType) {
       case ChangeType.CREATE: {
-        logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() create -> change.after.id;", change.after.id);
-        const data = change.after.data();
-        logger.info("--> onDocumentCreated(easy-commands/{documentId})  onWrite() data;", data);
+        logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() create -> change.after.id;", change.after.id, change.after.data());
         return CommandModel.execute(change.after);
       }
       case ChangeType.DELETE:
-        logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() delete -> change.after.id;", change.after.id);
         break;
       case ChangeType.UPDATE:
-        logger.info("--> onDocumentCreated(easy-commands/{documentId}) onWrite() update -> change.after.id;", change.after.id);
         break;
       default: {
         throw new Error(`Invalid change type: ${changeType}`);

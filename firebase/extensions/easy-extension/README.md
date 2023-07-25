@@ -8,7 +8,23 @@
 - The `easy-commands` collection should be protected by security rules for the adming-create-only permission.
 
 
+## Installation
+
+See the change logs for the change of each version.
+
+- [Alpha (0.0.21-alpha.1)](https://console.firebase.google.com/u/0/project/_/extensions/install?ref=jaehosong%2Feasy-extension@0.0.22-alpha.0)
+
 ## Command list
+
+* Currently supported commands are
+  * `update_custom_claims`
+  * `disable_user`
+
+* Commands that will be supported in next version
+  * `enable_user`
+  * `user_exists`
+  * `delete_user`
+  * `like` - like button in post, comment. The security rule must allow users to command.
 
 
 ### Updating auth custom claims
@@ -35,12 +51,29 @@
 
 
 
+- `SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT` option only works with `update_custom_claims` command.
+  - When it is set to `yes`, the claims of the user will be set to user's document.
+  - By knowing user's custom claims,
+    - the app can know that if the user is admin or not.
+      - If the user is admin, then the app can show admin menu to the user.
+    - Security rules can work better.
+
+
+
 
 ### Disable user
 
 - Disabling a user means that they can't sign in anymore, nor refresh their ID token. In practice this means that within an hour of disabling the user they can no longer have a request.auth.uid in your security rules.
   - If you wish to block the user immediately, I recommend to run another command. Running `update_custom_claims` comand with `{ disabled: true }` and you can add it on security rules.
   - Additionally, you can enable `set enable field on user document` to yes. This will add `disabled` field on user documents and you can search(list) users who are disabled.
+
+
+
+- `SET_DISABLED_USER_FIELD` option only works with `disable_user` command.
+  - When it is set to yes, the `disabled` field with `true` will be set to user document.
+  - Use this to know if the user is disabled.
+
+
 
 ## Error handling
 
@@ -97,6 +130,11 @@
   - `npm run mocha -- tests/update_custom_claims/get_set.spec.ts`
   - `npm run mocha -- tests/update_custom_claims/update.spec.ts`
 
+
+
+## Tips
+
+- If you want, you can add `timestamp` field for listing.
 
 
 

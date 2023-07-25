@@ -27,16 +27,14 @@ describe("User custom claims", () => {
     it("Update claims with command", async () => {
 
         const user = await createTestUser();
-        await UserModel.setCustomClaims(user.uid, { level: 12 });
-
 
         const db = getFirestore();
 
         // Create command doc
         const ref = await db.collection("easy-commands").add({
             command: 'update_custom_claims',
-            options: {
-                uid: user.uid,
+            uid: user.uid,
+            claims: {
                 level: 13
             }
         } satisfies Command);
@@ -58,8 +56,8 @@ describe("User custom claims", () => {
         // Do it again with different options
         const againRef = await db.collection("easy-commands").add({
             command: 'update_custom_claims',
-            options: {
-                uid: user.uid,
+            uid: user.uid,
+            claims: {
                 level: 14,
                 groupName: 'writer'
             }
