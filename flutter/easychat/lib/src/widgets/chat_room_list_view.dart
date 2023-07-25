@@ -156,6 +156,7 @@ class ChatRoomMenuButton extends StatelessWidget {
                     children: [
                       if (room.group) ...[Text(room.name)],
                       if (!room.group) ...[Text(otherUser!.displayName)],
+                      const Text('Leave'),
                       InviteUserButton(room: room),
                       ChatMembersButton(room: room),
                     ],
@@ -237,7 +238,7 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (EasyChat.instance.canRemoveUserFromRoom(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance.canRemove(room: widget.room, uid: userSnapshot.data!.uid)) ...[
                             TextButton(
                               // If we have to separate this UI, we have to remanage the state
                               child: Text(FirebaseAuth.instance.currentUser!.uid == userSnapshot.data!.uid

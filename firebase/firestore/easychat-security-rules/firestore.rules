@@ -9,6 +9,13 @@
 // Reading a document is required to see if the user is blocked unless it is done with custom claims.
 // Reading a chat room (settings) document is required when creating a new chat message.
 rules_version = '2';
+
+// Return true if the use is root user.
+function isAdmin() {
+  let adminUIDs = ['root', 'root2'];
+  return request.auth.uid in adminUIDs || request.auth.token.admin == true;
+}
+
 service cloud.firestore {
   match /databases/{database}/documents {
     function prefix() {
@@ -142,12 +149,12 @@ function willBeSingleChat() {
 // Returns the number of users in the room AFTER save. Count without uinique uids.
 // ! After save
 function userSize() {
-  return request.resource.data.users.toSet().size();
+  return request.resource.data.users.size();
 }
 
 // Adding an element to the array field.
 //
-// This must add an elemnt only. Not replacing any other element.
+// This must add an elemnt only. Not replacing any other element. It does unique element check.
 function onlyAdding(arrayField) {
   return
     resource.data[arrayField].toSet().intersection(request.resource.data[arrayField].toSet()) == resource.data[arrayField].toSet()
@@ -216,11 +223,6 @@ function isJoining() {
     onlyAdding('users')
     && 
     request.resource.data.users.toSet().difference(resource.data.users.toSet()) == [request.auth.uid].toSet();
-}
-
-// Return true if the use is root user.
-function isAdmin() {
-  return request.auth.uid in ['root', 'root2'];
 }
 
 

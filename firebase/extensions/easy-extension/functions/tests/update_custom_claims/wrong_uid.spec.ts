@@ -30,8 +30,8 @@ describe("User custom claims - wrong uid", () => {
         // Create command doc
         const ref = await db.collection("easy-commands").add({
             command: 'update_custom_claims',
-            options: {
-                uid: '.... wrong uid ....',
+            uid: '.... wrong uid ....',
+            claims: {
                 level: 13
             }
         } satisfies Command);

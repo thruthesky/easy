@@ -1,3 +1,9 @@
+## Version 0.0.22
+
+add - `disable_user` command is added.
+fix - `update_custom_claims` is updated to sync back the claims to user document.
+
+
 ## Version 0.0.21
 
 fix - test

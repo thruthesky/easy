@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import { UpdateCustomClaimsOptions } from "../interfaces/command.interface";
+import { Config } from "../config";
 
 /**
  * UserModel
@@ -7,6 +8,17 @@ import { UpdateCustomClaimsOptions } from "../interfaces/command.interface";
  * Manage user data
  */
 export class UserModel {
+
+  /**
+   * 
+   * @param uid uid
+   * @returns Promise<{ ... }>
+   */
+  static async get(uid: string): Promise<Record<string, any> | undefined> {
+    const user = await admin.firestore().collection(Config.userCollectionName).doc(uid).get();
+    return user.data();
+  }
+
   /**
        *
        * @param {*} uid
@@ -17,6 +29,8 @@ export class UserModel {
     await admin.auth().setCustomUserClaims(uid, claims);
     return uid;
   }
+
+
 
   /**
        *
@@ -52,7 +66,9 @@ export class UserModel {
   /**
    * Set disable field on user document user the input collection.
    */
-  static async setDisabledField(uid: string, collectionName: string): Promise<void> {
-    await admin.firestore().collection(collectionName).doc(uid).set({ disabled: true }, { merge: true });
+  static async update(uid: string, data: Record<string, any>): Promise<void> {
+    await admin.firestore().collection(Config.userCollectionName).doc(uid).set(data, { merge: true });
   }
+
+
 }
