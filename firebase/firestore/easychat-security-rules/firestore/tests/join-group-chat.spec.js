@@ -32,7 +32,7 @@ describe("Join test", () => {
       db(c)
         .collection("easychat")
         .doc(ref.id)
-        .set({ users: firebase.firestore.FieldValue.arrayUnion(c.uid) })
+        .update({ users: firebase.firestore.FieldValue.arrayUnion(c.uid) })
     );
   });
 

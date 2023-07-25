@@ -46,18 +46,6 @@ service cloud.firestore {
       function isGroupChat() {
         return 'group' in resource.data && resource.data.group;
       }
-      // function isModifyingUsers() {
-      //   return 'users' in request.resource.data;
-      // }
-      // function isModifyingModerators() {
-      //   return 'moderators' in request.resource.data;
-      // }
-      // function isRemovalOfUserInChatRoom() {
-      //   return request.resource.data.users.size() == resource.data.users.size() - 1
-      // }
-      // function isKickingOutAMaster() {
-      //   return !request.resource.data.users.hasAny([resource.data.master]);
-      // }
 
       allow read: if isOpen() || isRoomUser();
       allow create: if
@@ -84,23 +72,10 @@ service cloud.firestore {
         ||
         ( isRoomUser() && onlyUpdating(['lastMessage', 'noOfNewMessages']) )
         ||
-        ( isRoomUser() && isOpen() && onlyAdding('users') )
-        ||
-        ( isOpen() && isJoining() ) // Problem, the user must be able to join if the room is open and it's a Group chat. Not working
+        ( isOpen() && ((isRoomUser() && onlyAdding('users')) || isJoining()) )
       ;
 
-
-
-
-
-      // For room users, they can invite any users if it's open chat. He can join any group chat if it's open.
-      // For room users, they can remove themselves from the room.
-      // ( isRoomUser() && onlyUpdating(['lastMessage']) )
-      // || (isRoomUser() && isOpenChat() && isAddingOtherUser())
-      // || (isRoomUser() && isRemovingHimSelf())
-        // ;
       allow delete: if false;
-
 
       match /messages/{messageId} {
         function isMyMessage() {
@@ -125,7 +100,6 @@ service cloud.firestore {
         allow delete: if isMyMessage() && !isBlocked();
       }
     }
-    
 
     match /readonly/{documentId} {
       allow read: if true;
@@ -165,15 +139,11 @@ function willBeSingleChat() {
   return request.resource.data.group == false;
 }
 
-
-
 // Returns the number of users in the room AFTER save. Count without uinique uids.
 // ! After save
 function userSize() {
   return request.resource.data.users.toSet().size();
 }
-
-
 
 // Adding an element to the array field.
 //
@@ -243,7 +213,7 @@ function isLeaving() {
 // Return true if the user is adding himself to the room.
 function isJoining() {
   return
-    request.resource.data.users.toSet().difference(resource.data.users.toSet()).size() == 1
+    onlyAdding('users')
     && 
     request.resource.data.users.toSet().difference(resource.data.users.toSet()) == [request.auth.uid].toSet();
 }

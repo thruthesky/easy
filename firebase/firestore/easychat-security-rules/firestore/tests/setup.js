@@ -103,6 +103,39 @@ async function block(blockerAuth, blockedAuth, roomId) {
     });
 }
 
+/**
+ * Chat unblock
+ *
+ *
+ * @param {*} unblockerAuth the auth of the user who blocks
+ * @param {*} blockedAuth the auth of the user who is being blocked.
+ */
+async function unblock(unblockerAuth, blockedAuth, roomId) {
+  await db(unblockerAuth)
+    .collection("easychat")
+    .doc(roomId)
+    .update({
+      blockedUsers: firebase.firestore.FieldValue.arrayRemove(blockedAuth.uid),
+    });
+}
+
+/**
+ * Chat Set as Moderator
+ *
+ *
+ * @param {*} setterAuth the auth of the user who sets the moderator
+ * @param {*} userAuth the auth of the user who is being added as moderator.
+ */
+async function setAsModerator(setterAuth, userAuth, roomId) {
+  await db(setterAuth)
+    .collection("easychat")
+    .doc(roomId)
+    .update({
+      moderators: firebase.firestore.FieldValue.arrayUnion(userAuth.uid),
+    });
+}
+
+
 exports.db = db;
 exports.admin = admin;
 exports.tempChatRoomData = tempChatRoomData;
@@ -115,3 +148,5 @@ exports.TEST_PROJECT_ID = TEST_PROJECT_ID;
 exports.createOpenGroupChat = createOpenGroupChat;
 exports.invite = invite;
 exports.block = block;
+exports.unblock = unblock;
+exports.setAsModerator = setAsModerator;
