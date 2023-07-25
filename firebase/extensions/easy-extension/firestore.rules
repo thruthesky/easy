@@ -3,7 +3,7 @@ rules_version = '2';
 
 // Add admin UID's here
 function isAdmin() {
-  let adminUIDs = ['root', 'root2'];
+  let adminUIDs = ['root-uid', 'uid-A', 'uid-B'];
   return request.auth.uid in adminUIDs;
 }
 
