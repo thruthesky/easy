@@ -85,6 +85,8 @@ service cloud.firestore {
         ( isRoomUser() && onlyUpdating(['lastMessage', 'noOfNewMessages']) )
         ||
         ( isRoomUser() && isOpen() && onlyAdding('users') )
+        ||
+        ( isOpen() && isJoining() ) // Problem, the user must be able to join if the room is open and it's a Group chat. Not working
       ;
 
 
@@ -139,12 +141,7 @@ service cloud.firestore {
       allow read: if true;
       allow update: if onlyRemoving('users', 'b');
     }
-
   }
-
-
-
-
 }
 
 // * Warning : It's check the fields after save.
@@ -236,6 +233,13 @@ function isLeaving() {
   return onlyRemoving('users', request.auth.uid);
 }
 
+// Return true if the user is adding himself to the room.
+function isJoining() {
+  return
+    request.resource.data.users.toSet().difference(resource.data.users.toSet()).size() == 1
+    && 
+    request.resource.data.users.toSet().difference(resource.data.users.toSet()) == [request.auth.uid].toSet();
+}
 
 // Return true if the use is root user.
 function isAdmin() {
