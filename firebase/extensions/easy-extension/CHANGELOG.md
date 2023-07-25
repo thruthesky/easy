@@ -2,9 +2,7 @@
 
 First beta release.
 add - User document creation/deletion options.
-add - Working commands in this release;
-    `update_custom_claims`, `disable_user`, `enable_user`, `delete_user`, `get_user`.
-
+add - Working commands in this release `update_custom_claims`, `disable_user`, `enable_user`, `delete_user`, `get_user`.
 
 ## Version 0.0.22
 
