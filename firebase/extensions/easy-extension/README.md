@@ -15,27 +15,26 @@
 
 - Required properties
   - `{ command: 'update_custom_claims' }` - the command.
-  - `{ options: { uid: 'xxx' } }` - the user's uid that the claims will be applied to.
-  - `{ options: { key: value, xxx: xxx, ... } }` - other keys and values for the claims.
+  - `{ uid: 'xxx' }` - the user's uid that the claims will be applied to.
+  - `{ claims: { key: value, xxx: xxx, ... } }` - other keys and values for the claims.
+
+- example of document creation for update_custom claims
+
+
+![Image Link](https://github.com/thruthesky/easy/blob/main/firebase/extensions/easy-extension/docs/command-update_custom_claims_input.jpg?raw=true "This is image title")
 
 
 - Response
+  - `{ config: ... }` - the configuration of the extension
   - `{ response: { status: 'success' } }` - success respones
   - `{ response: { timestamp: xxxx } }` - the time that the executino had finished.
-  - `{ response: { claims: { ..., ... } } }` - the claims that the user has.
+  - `{ response: { claims: { ..., ... } } }` - the claims that the user currently has. Not the claims that were requested for updating.
 
 
-- Example
+![Image Link](https://github.com/thruthesky/easy/blob/main/firebase/extensions/easy-extension/docs/command-update_custom_claims_output.jpg?raw=true "This is image title")
 
 
-- Create a document under `/easy-commands` collection with the following properties
-  - `uid` - `[string]`. The user uid to apply the claims.
-  - `admin` - `[boolean]`. Set true if the user is admin. (optional).
-  - `block` - `[boolean]`. Set true if the user is blocked. (optional).
-  - `{ [key: string]: any }`. You can add any string/value for the claims.
 
-
-![Alt text](image.png)
 
 ### Disable user
 
@@ -101,3 +100,7 @@
 
 
 
+## Security rules
+
+- The `/easy-commands` collection should be protected by the admin users.
+- See the [sample security rules](https://github.com/thruthesky/easy/blob/main/firebase/extensions/easy-extension/firestore.rules) that you may copy and use for the seurity rules of easy-extension
