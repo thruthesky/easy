@@ -56,7 +56,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/easy-commands/{documentId}
-      runtime: "nodejs16"
+      runtime: "nodejs18"
 
   - name: createUserDocument
     type: firebaseextensions.v1beta.function
@@ -69,7 +69,7 @@ resources:
       eventTrigger:
         eventType: providers/firebase.auth/eventTypes/user.create
         resource: projects/${PROJECT_ID}
-      runtime: "nodejs16"
+      runtime: "nodejs18"
 
   - name: deleteUserDocument
     type: firebaseextensions.v1beta.function
@@ -82,7 +82,7 @@ resources:
       eventTrigger:
         eventType: providers/firebase.auth/eventTypes/user.delete
         resource: projects/${PROJECT_ID}
-      runtime: "nodejs16"
+      runtime: "nodejs18"
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs:
