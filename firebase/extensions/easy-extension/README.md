@@ -8,6 +8,12 @@
 - The `easy-commands` collection should be protected by security rules for the adming-create-only permission.
 
 
+## Installation
+
+See the change logs for the change of each version.
+
+- [Alpha (0.0.21-alpha.1)](https://console.firebase.google.com/u/0/project/_/extensions/install?ref=jaehosong%2Feasy-extension@0.0.22-alpha.0)
+
 ## Command list
 
 * Currently supported commands are
