@@ -10,6 +10,16 @@
 
 ## Command list
 
+* Currently supported commands are
+  * `update_custom_claims`
+  * `disable_user`
+
+* Commands that will be supported in next version
+  * `enable_user`
+  * `user_exists`
+  * `delete_user`
+  * `like` - like button in post, comment. The security rule must allow users to command.
+
 
 ### Updating auth custom claims
 
@@ -36,6 +46,11 @@
 
 
 - `SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT` option only works with `update_custom_claims` command.
+  - When it is set to `yes`, the claims of the user will be set to user's document.
+  - By knowing user's custom claims,
+    - the app can know that if the user is admin or not.
+      - If the user is admin, then the app can show admin menu to the user.
+    - Security rules can work better.
 
 
 
@@ -49,6 +64,8 @@
 
 
 - `SET_DISABLED_USER_FIELD` option only works with `disable_user` command.
+  - When it is set to yes, the `disabled` field with `true` will be set to user document.
+  - Use this to know if the user is disabled.
 
 
 

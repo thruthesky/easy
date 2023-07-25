@@ -9,6 +9,13 @@
 // Reading a document is required to see if the user is blocked unless it is done with custom claims.
 // Reading a chat room (settings) document is required when creating a new chat message.
 rules_version = '2';
+
+// Return true if the use is root user.
+function isAdmin() {
+  let adminUIDs = ['root', 'root2'];
+  return request.auth.uid in adminUIDs || request.auth.token.admin == true;
+}
+
 service cloud.firestore {
   match /databases/{database}/documents {
     function prefix() {
@@ -243,11 +250,6 @@ function isLeaving() {
   return onlyRemoving('users', request.auth.uid);
 }
 
-
-// Return true if the use is root user.
-function isAdmin() {
-  return request.auth.uid in ['root', 'root2'];
-}
 
 
 // If the user is disabled by the admin in Firebase Auth, they cannot login and they don't have request.auth.uid.
