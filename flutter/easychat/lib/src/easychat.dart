@@ -208,6 +208,7 @@ class EasyChat {
       updateNoOfMessages[uid] = FieldValue.increment(1);
     }
     updateNoOfMessages[FirebaseAuth.instance.currentUser!.uid] = 0;
+    // TODO separate noOfMessages into different collection, because of reads
     await roomDoc(room.id).set({'noOfNewMessages': updateNoOfMessages, 'lastMessage': lastMessage}, SetOptions(merge: true));
   }
 

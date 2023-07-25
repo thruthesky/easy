@@ -85,6 +85,8 @@ service cloud.firestore {
         ( isRoomUser() && onlyUpdating(['lastMessage', 'noOfNewMessages']) )
         ||
         ( isRoomUser() && isOpen() && onlyAdding('users') )
+        ||
+        ( isOpen() && isJoining() ) // Problem, the user must be able to join if the room is open and it's a Group chat. Not working
       ;
 
 
@@ -110,10 +112,17 @@ service cloud.firestore {
         function isRoomUser() {
           return 'users' in roomData() && roomData().users.hasAny([request.auth.uid]);
         }
-        allow read: if isRoomUser();
-        allow create: if isRoomUser();
-        allow update: if isMyMessage();
-        allow delete: if isMyMessage();
+
+        // Check if the user is blocked for the chat room.
+        // User to user blocking must be implemented in the client side ( by hiding or replacing the message as blocked ).
+        function isBlocked() {
+          return 'blockedUsers' in roomData() && roomData().hasAny([request.auth.uid]);
+        }
+
+        allow read: if isRoomUser() && !isBlocked();
+        allow create: if isRoomUser() && !isBlocked();
+        allow update: if isMyMessage() && !isBlocked();
+        allow delete: if isMyMessage() && !isBlocked();
       }
     }
     
@@ -139,12 +148,7 @@ service cloud.firestore {
       allow read: if true;
       allow update: if onlyRemoving('users', 'b');
     }
-
   }
-
-
-
-
 }
 
 // * Warning : It's check the fields after save.
@@ -236,8 +240,22 @@ function isLeaving() {
   return onlyRemoving('users', request.auth.uid);
 }
 
+// Return true if the user is adding himself to the room.
+function isJoining() {
+  return
+    request.resource.data.users.toSet().difference(resource.data.users.toSet()).size() == 1
+    && 
+    request.resource.data.users.toSet().difference(resource.data.users.toSet()) == [request.auth.uid].toSet();
+}
 
 // Return true if the use is root user.
 function isAdmin() {
   return request.auth.uid in ['root', 'root2'];
+}
+
+
+// If the user is disabled by the admin in Firebase Auth, they cannot login and they don't have request.auth.uid.
+// So, no need to check if the user is disabled.
+function isDisabled() {
+  return true;
 }

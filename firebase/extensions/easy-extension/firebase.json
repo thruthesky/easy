@@ -15,11 +15,8 @@
       ]
     }
   ],
-  "extensions": {
-    "easy-extension": "jaehosong/easy-extension@^0.0.9"
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
-
-
-
-
