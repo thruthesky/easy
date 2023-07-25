@@ -36,7 +36,7 @@ function admin() {
  *
  * @param {*} options
  * @returns returns chat room data
- * 
+ *
  * @example
  *  - tempChatRoomData({ master: a.uid, users: [a.uid, b.uid] }
  */
@@ -53,17 +53,54 @@ function tempChatRoomData(options = {}) {
 }
 
 /**
- * 
- * @param {*} user 
- * @param {*} options 
+ *
+ * @param {*} masterAuth
+ * @param {*} options
  * @returns chat room ref
  * @example
  * - const roomRef = await createChatRoom(a, { master: a.uid, users: [a.uid, b.uid] });
  */
-function createChatRoom(user, options = {}) {
-  return db(user)
+function createChatRoom(masterAuth, options = {}) {
+  return db(masterAuth).collection("easychat").add(tempChatRoomData(options));
+}
+
+async function createOpenGroupChat(masterAuth) {
+  return await createChatRoom(a, {
+    master: a.uid,
+    users: [a.uid],
+    open: true,
+    group: true,
+  });
+}
+
+/**
+ * Chat invite
+ *
+ *
+ * @param {*} a the auth of the user who invites
+ * @param {*} b the auth of the user who is being invited.
+ */
+async function invite(a, b, roomId) {
+  await db(a)
     .collection("easychat")
-    .add(tempChatRoomData(options));
+    .doc(roomId)
+    .update({ users: firebase.firestore.FieldValue.arrayUnion(b.uid) });
+}
+
+/**
+ * Chat block
+ *
+ *
+ * @param {*} blockerAuth the auth of the user who blocks
+ * @param {*} blockedAuth the auth of the user who is being blocked.
+ */
+async function block(blockerAuth, blockedAuth, roomId) {
+  await db(blockerAuth)
+    .collection("easychat")
+    .doc(roomId)
+    .update({
+      blockedUsers: firebase.firestore.FieldValue.arrayUnion(blockedAuth.uid),
+    });
 }
 
 exports.db = db;
@@ -75,3 +112,6 @@ exports.b = b;
 exports.c = c;
 exports.d = d;
 exports.TEST_PROJECT_ID = TEST_PROJECT_ID;
+exports.createOpenGroupChat = createOpenGroupChat;
+exports.invite = invite;
+exports.block = block;

@@ -110,10 +110,17 @@ service cloud.firestore {
         function isRoomUser() {
           return 'users' in roomData() && roomData().users.hasAny([request.auth.uid]);
         }
-        allow read: if isRoomUser();
-        allow create: if isRoomUser();
-        allow update: if isMyMessage();
-        allow delete: if isMyMessage();
+
+        // Check if the user is blocked for the chat room.
+        // User to user blocking must be implemented in the client side ( by hiding or replacing the message as blocked ).
+        function isBlocked() {
+          return 'blockedUsers' in roomData() && roomData().hasAny([request.auth.uid]);
+        }
+
+        allow read: if isRoomUser() && !isBlocked();
+        allow create: if isRoomUser() && !isBlocked();
+        allow update: if isMyMessage() && !isBlocked();
+        allow delete: if isMyMessage() && !isBlocked();
       }
     }
     
@@ -240,4 +247,11 @@ function isLeaving() {
 // Return true if the use is root user.
 function isAdmin() {
   return request.auth.uid in ['root', 'root2'];
+}
+
+
+// If the user is disabled by the admin in Firebase Auth, they cannot login and they don't have request.auth.uid.
+// So, no need to check if the user is disabled.
+function isDisabled() {
+  return true;
 }
