@@ -72,6 +72,19 @@ params:
     default: users # Specifying a default is optional.
     required: false
 
+  - param: SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT
+    label: Sync back to user document when custom claims are updated.
+    description: >-
+      If set to \"Yes\", custom claims will be sync.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: yes
+    required: true
+
   - param: SET_DISABLED_USER_FIELD
     label: Set disabled field in user document.
     description: >-
@@ -82,5 +95,5 @@ params:
         value: yes
       - label: No
         value: no
-    default: no
+    default: yes
     required: true

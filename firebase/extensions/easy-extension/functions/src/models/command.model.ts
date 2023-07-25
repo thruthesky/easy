@@ -1,9 +1,9 @@
-import { DocumentSnapshot, FieldValue, WriteResult } from "firebase-admin/firestore";
+import { DocumentSnapshot, WriteResult } from "firebase-admin/firestore";
 import { Command, UpdateCustomClaimsOptions } from "../interfaces/command.interface";
 import { UserModel } from "./user.model";
 import * as functions from "firebase-functions";
-import config from "../config";
-import { success } from "../utils";
+import { Config } from "../config";
+import { failure, success } from "../utils";
 
 /**
  * CommandModel
@@ -24,14 +24,23 @@ export class CommandModel {
     const ref = snapshot.ref;
     // const uid = ref.id;
 
-    console.log('---> input command; ', command);
+    // functions.logger.info('---> input command; ', command);
 
     try {
-      if (command.command === "update_custom_claims") {
+      if (command.command === void 0) {
+        throw new Error("execution/command-is-undefined");
+      }
+      else if (command.command === "update_custom_claims") {
 
         const claims = command.claims as UpdateCustomClaimsOptions;
-        console.log('---> claims;', claims);
+        // functions.logger.info('---> claims;', claims);
         await UserModel.updateCustomClaims(command.uid, claims);
+        if (Config.syncCustomClaimsToUserDocument) {
+          // functions.logger.info('---> syncCustomClaimsToUserDocument;', Config.syncCustomClaimsToUserDocument);
+          // functions.logger.info('---> setCustomClaims;', claims);
+          // functions.logger.info('---> user collection', Config.userCollectionName);
+          await UserModel.update(command.uid, { claims });
+        }
         return await success(ref, { claims: await UserModel.getCustomClaims(command.uid) });
 
       } else if (command.command === "user_exists") {
@@ -49,8 +58,8 @@ export class CommandModel {
       }
       else if (command.command === "disable_user") {
         await UserModel.disable(command.uid);
-        if (config.setDisabledUserField) {
-          await UserModel.setDisabledField(command.uid, config.userCollectionName);
+        if (Config.setDisabledUserField) {
+          await UserModel.update(command.uid, { disabled: true });
         }
         return await success(ref, {});
       }
@@ -74,15 +83,7 @@ export class CommandModel {
         command
       );
       // report
-      return await ref.update({
-        response:
-        {
-          status: "error",
-          code,
-          message,
-          timestamp: FieldValue.serverTimestamp(),
-        },
-      });
+      return await failure(ref, code, message);
     }
   }
 }

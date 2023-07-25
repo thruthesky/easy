@@ -35,12 +35,22 @@
 
 
 
+- `SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT` option only works with `update_custom_claims` command.
+
+
+
 
 ### Disable user
 
 - Disabling a user means that they can't sign in anymore, nor refresh their ID token. In practice this means that within an hour of disabling the user they can no longer have a request.auth.uid in your security rules.
   - If you wish to block the user immediately, I recommend to run another command. Running `update_custom_claims` comand with `{ disabled: true }` and you can add it on security rules.
   - Additionally, you can enable `set enable field on user document` to yes. This will add `disabled` field on user documents and you can search(list) users who are disabled.
+
+
+
+- `SET_DISABLED_USER_FIELD` option only works with `disable_user` command.
+
+
 
 ## Error handling
 
@@ -97,6 +107,11 @@
   - `npm run mocha -- tests/update_custom_claims/get_set.spec.ts`
   - `npm run mocha -- tests/update_custom_claims/update.spec.ts`
 
+
+
+## Tips
+
+- If you want, you can add `timestamp` field for listing.
 
 
 
