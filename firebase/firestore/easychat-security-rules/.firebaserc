@@ -1,6 +1,6 @@
 {
   "projects": {
-    "withcenter-test-2": "withcenter-test-2"
+    "test": "withcenter-test-2"
   },
   "targets": {},
   "etags": {}

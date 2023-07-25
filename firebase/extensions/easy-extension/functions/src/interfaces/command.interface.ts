@@ -1,13 +1,18 @@
+import { Config } from "../config";
+
 export interface Command {
     // command list
-    command: "update_custom_claims" | "user_exists";
+    command: "update_custom_claims" | "user_exists" | "disable_user";
+    uid: string;
 
     // command Options
-    options: UpdateCustomClaimsOptions | UserExistsOptions;
+    claims?: UpdateCustomClaimsOptions;
+    userExists?: UserExistsOptions;
 
     // result of the command execution.
     response?: {
         status: "success" | "error";
+        config: Config;
         claims?: Record<string, any>;
         code?: string;
         message?: string;
@@ -16,13 +21,13 @@ export interface Command {
 }
 
 export interface UpdateCustomClaimsOptions {
-    // To whom this command is applied
-    uid: string;
     // Custom claims to update
     admin?: boolean;
-    block?: boolean;
+    disabled?: boolean;
     [key: string]: any;
 }
+
+
 
 export interface UserExistsOptions {
     by: "uid" | "email" | "phoneNumber";

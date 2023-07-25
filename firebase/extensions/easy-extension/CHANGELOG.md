@@ -1,7 +1,56 @@
+## Version 0.0.21
+
+fix - test
+
+
+## Version 0.0.20
+
+fix - change it on write
+
+## Version 0.0.19
+
+fix - no firestore update
+
+## Version 0.0.18
+
+fix - build test
+
+
+## Version 0.0.17
+
+fix - build test
+
+## Version 0.0.15
+
+fix - data
+
+## Version 0.0.14
+
+fix - add datastore.owner
+
+
+## Version 0.0.13
+
+fix - add role
+
+## Version 0.0.12
+
+fix - add role
+
+
+## Version 0.0.11
+
+fix - add role
+
+
+## Version 0.0.10
+
+fix - 1st gen
+
+
 ## Version 0.0.9
 
 fix - configuration
-
 
 ## Version 0.0.8
 
