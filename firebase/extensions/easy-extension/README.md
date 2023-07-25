@@ -103,3 +103,5 @@
 ## Security rules
 
 - The `/easy-commands` collection should be protected by the admin users.
+
+
