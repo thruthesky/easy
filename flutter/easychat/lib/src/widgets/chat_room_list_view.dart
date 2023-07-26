@@ -129,43 +129,126 @@ class ChatRoomAppBarState extends State<ChatRoomAppBar> {
   }
 }
 
-class ChatRoomMenuButton extends StatelessWidget {
+class ChatRoomMenuButton extends StatefulWidget {
   const ChatRoomMenuButton({
     super.key,
     required this.room,
   });
 
   final ChatRoomModel room;
+
+  @override
+  State<ChatRoomMenuButton> createState() => _ChatRoomMenuButtonState();
+}
+
+class _ChatRoomMenuButtonState extends State<ChatRoomMenuButton> {
   @override
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.menu),
       onPressed: () async {
-        final otherUser = room.group == true ? null : await EasyChat.instance.getOtherUserFromSingleChatRoom(room);
+        final otherUser =
+            widget.room.group == true ? null : await EasyChat.instance.getOtherUserFromSingleChatRoom(widget.room);
         if (context.mounted) {
           showGeneralDialog(
             context: context,
             pageBuilder: (context, _, __) {
-              return Scaffold(
-                appBar: AppBar(
-                  title: const Text('Chat Room'),
-                ),
-                body: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ListView(
-                    children: [
-                      if (room.group) ...[Text(room.name)],
-                      if (!room.group) ...[Text(otherUser!.displayName)],
-                      const Text('Leave'),
-                      InviteUserButton(room: room),
-                      ChatMembersButton(room: room),
-                    ],
-                  ),
-                ),
+              return ChatRoomMenuScreen(
+                room: widget.room,
+                otherUser: otherUser,
               );
             },
           );
         }
+      },
+    );
+  }
+}
+
+class ChatRoomMenuScreen extends StatefulWidget {
+  const ChatRoomMenuScreen({
+    super.key,
+    required this.room,
+    this.otherUser,
+  });
+
+  final ChatRoomModel room;
+  final UserModel? otherUser;
+
+  @override
+  State<ChatRoomMenuScreen> createState() => _ChatRoomMenuScreenState();
+}
+
+class _ChatRoomMenuScreenState extends State<ChatRoomMenuScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat Room'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            if (widget.room.group) ...[Text(widget.room.name)],
+            if (!widget.room.group) ...[Text(widget.otherUser!.displayName)],
+            const LeaveButton(),
+            InviteUserButton(
+              room: widget.room,
+              onInvite: (invitedUserUid) {
+                setState(() {});
+              },
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Members'),
+                  ChatRoomMembersListView(room: widget.room),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LeaveButton extends StatelessWidget {
+  const LeaveButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: const Text('Leave'),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Leaving Room"),
+              content: const Text("Are you sure you want to leave the group chat?"),
+              actions: [
+                TextButton(
+                  child: const Text("Leave"),
+                  onPressed: () {
+                    // TODO Leave group
+                    debugPrint("Leaving");
+                  },
+                ),
+                TextButton(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -181,21 +264,11 @@ class ChatMembersButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      child: const Text("Members"),
-      onPressed: () {
-        showGeneralDialog(
-          context: context,
-          pageBuilder: (context, _, __) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Chat Members'),
-              ),
-              body: ChatRoomMembersListView(room: room),
-            );
-          },
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat Members'),
+      ),
+      body: ChatRoomMembersListView(room: room),
     );
   }
 }
@@ -216,7 +289,9 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: widget.room.users.length, // Manage the state of this
+      shrinkWrap: true,
+      physics: const ClampingScrollPhysics(),
+      itemCount: widget.room.users.length,
       itemBuilder: (context, index) {
         return FutureBuilder(
           future: EasyChat.instance.getUser(widget.room.users[index]),
@@ -240,7 +315,6 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                         children: [
                           if (EasyChat.instance.canRemove(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
-                              // If we have to separate this UI, we have to remanage the state
                               child: const Text('Remove from the Group'),
                               onPressed: () {
                                 EasyChat.instance.removeUserFromRoom(
@@ -312,9 +386,11 @@ class InviteUserButton extends StatelessWidget {
   const InviteUserButton({
     super.key,
     required this.room,
+    this.onInvite,
   });
 
   final ChatRoomModel room;
+  final Function(String invitedUserUid)? onInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +404,12 @@ class InviteUserButton extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Invite Users'),
               ),
-              body: InviteUserListView(room: room),
+              body: InviteUserListView(
+                room: room,
+                onInvite: (uid) {
+                  onInvite?.call(uid);
+                },
+              ),
             );
           },
         );
@@ -341,9 +422,11 @@ class InviteUserListView extends StatefulWidget {
   const InviteUserListView({
     super.key,
     required this.room,
+    this.onInvite,
   });
 
   final ChatRoomModel room;
+  final Function(String invitedUserUid)? onInvite;
 
   @override
   State<InviteUserListView> createState() => _InviteUserListViewState();
@@ -377,6 +460,7 @@ class _InviteUserListViewState extends State<InviteUserListView> {
                 setState(() {
                   widget.room.users.add(user.uid);
                 });
+                widget.onInvite?.call(user.uid);
               });
             },
           );
