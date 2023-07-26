@@ -110,11 +110,17 @@ class EasyChat {
       'group': isGroupChat,
       'open': isOpen,
       'users': users,
+      'lastMessage': {
+        'createdAt': FieldValue.serverTimestamp(),
+        // TODO make a protocol
+      }
     };
 
     // chat room id
     final roomId = isSingleChat ? getSingleChatRoomId(otherUserUid) : chatCol.doc().id;
     await chatCol.doc(roomId).set(roomData);
+
+    debugPrint('You just created it');
 
     // Create users (invite)
     // for (final uid in users) {

@@ -275,7 +275,8 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                               },
                             )
                           ],
-                          if (EasyChat.instance.canRemoveUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance
+                              .canRemoveUserAsModerator(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
                               child: const Text("Remove as a Moderator"),
                               onPressed: () {
