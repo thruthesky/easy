@@ -120,18 +120,6 @@ class EasyChat {
     final roomId = isSingleChat ? getSingleChatRoomId(otherUserUid) : chatCol.doc().id;
     await chatCol.doc(roomId).set(roomData);
 
-    debugPrint('You just created it');
-
-    // Create users (invite)
-    // for (final uid in users) {
-    //   final user = await getUser(uid);
-    //   await userCol(roomId).doc(uid).set({
-    //     'uid': uid,
-    //     'displayName': user?.displayName ?? '',
-    //     'photoUrl': user?.photoUrl ?? '',
-    //   });
-    // }
-
     return ChatRoomModel.fromMap(map: roomData, id: roomId);
   }
 
@@ -147,9 +135,9 @@ class EasyChat {
     });
   }
 
-  // TODO | For confirmation, if a Moderator was removed in the group by the Master, should we also remove in Moderators?
   Future<void> removeUserFromRoom({required ChatRoomModel room, required String uid, Function()? callback}) async {
     await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayRemove([uid]),
       'users': FieldValue.arrayRemove([uid])
     });
     callback?.call();
