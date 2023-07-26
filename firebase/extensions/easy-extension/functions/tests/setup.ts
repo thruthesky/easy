@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import serviceAccount from "../service-account.json";
+// import serviceAccount from "../service-account.json";
 
 /**
  * Initialize the Firebase Admin SDK
@@ -8,11 +8,13 @@ import serviceAccount from "../service-account.json";
  */
 export function initFirebaseAdminSDK() {
     if (admin.apps.length === 0) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-            databaseURL:
-                "https://withcenter-test-2-default-rtdb.asia-southeast1.firebasedatabase.app",
-        });
+        admin.initializeApp(
+            // {
+            // credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+            // databaseURL:
+            //     "https://withcenter-test-2-default-rtdb.asia-southeast1.firebasedatabase.app",
+            // }
+        );
     }
     return admin;
 }
