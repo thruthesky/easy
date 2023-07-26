@@ -66,17 +66,14 @@ class EasyChat {
   }
 
   /// Get a chat room with the given user uid (1:1 chat)
-  ///
-  ///
+  /// ! This will expectedly throw an error if we are trying to get a non existing record.
   Future<ChatRoomModel> getSingleChatRoom(String uid) async {
     final roomId = getSingleChatRoomId(uid);
     final snapshot = await roomDoc(roomId).get();
     return ChatRoomModel.fromDocumentSnapshot(snapshot);
   }
 
-  ///
-  ///
-  ///
+  /// Get Chat room if exists, create the chatroom if not exist yet
   Future<ChatRoomModel> getOrCreateSingleChatRoom(String uid) async {
     try {
       return await EasyChat.instance.getSingleChatRoom(uid);
@@ -110,21 +107,15 @@ class EasyChat {
       'group': isGroupChat,
       'open': isOpen,
       'users': users,
+      'lastMessage': {
+        'createdAt': FieldValue.serverTimestamp(),
+        // TODO make a protocol
+      }
     };
 
     // chat room id
     final roomId = isSingleChat ? getSingleChatRoomId(otherUserUid) : chatCol.doc().id;
     await chatCol.doc(roomId).set(roomData);
-
-    // Create users (invite)
-    // for (final uid in users) {
-    //   final user = await getUser(uid);
-    //   await userCol(roomId).doc(uid).set({
-    //     'uid': uid,
-    //     'displayName': user?.displayName ?? '',
-    //     'photoUrl': user?.photoUrl ?? '',
-    //   });
-    // }
 
     return ChatRoomModel.fromMap(map: roomData, id: roomId);
   }
@@ -141,9 +132,17 @@ class EasyChat {
     });
   }
 
-  // TODO | For confirmation, if a Moderator was removed in the group by the Master, should we also remove in Moderators?
+  Future<void> leaveRoom({required ChatRoomModel room, Function()? callback}) async {
+    await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayRemove([uid]),
+      'users': FieldValue.arrayRemove([uid])
+    });
+    callback?.call();
+  }
+
   Future<void> removeUserFromRoom({required ChatRoomModel room, required String uid, Function()? callback}) async {
     await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayRemove([uid]),
       'users': FieldValue.arrayRemove([uid])
     });
     callback?.call();
@@ -178,34 +177,41 @@ class EasyChat {
     return room.master == uid || room.moderators.contains(uid);
   }
 
+  /// Check if user can be removed in the group
   ///
-  ///
-  ///
-  canRemove({required ChatRoomModel room, required String uid}) {
+  canRemove({required ChatRoomModel room, required String userUid}) {
     // One cannot remove himself
-    if (FirebaseAuth.instance.currentUser!.uid == uid) return false;
+    if (userUid == uid) return false;
 
     // Only master and moderator can remove
     if (isAdmin(room)) {
       // admin cannot remove the master or moderators
-      if (isMaster(room: room, uid: uid)) return false;
-      if (isModerator(room: room, uid: uid)) return false;
+      if (isMaster(room: room, uid: userUid)) return false;
+      if (isModerator(room: room, uid: userUid)) return false;
       return true;
     }
 
     return false;
   }
 
-  canSetUserAsModerator({required ChatRoomModel room, required String uid}) {
-    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
-        !isMaster(room: room, uid: uid) &&
-        !isModerator(room: room, uid: uid);
+  canSetUserAsModerator({required ChatRoomModel room, required String userUid}) {
+    // If the current user is not a master, don't allow
+    if (!isMaster(room: room, uid: uid)) return false;
+
+    // If the user to set as moderator is not a master allow
+    if (!isMaster(room: room, uid: userUid)) return true;
+
+    return false;
   }
 
-  canRemoveUserAsModerator({required ChatRoomModel room, required String uid}) {
-    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
-        !isMaster(room: room, uid: uid) &&
-        isModerator(room: room, uid: uid);
+  canRemoveUserAsModerator({required ChatRoomModel room, required String userUid}) {
+    // If the current user is not a master, don't allow
+    if (!isMaster(room: room, uid: uid)) return false;
+
+    // If the user is a moderator, can remove
+    if (isModerator(room: room, uid: userUid)) return true;
+
+    return false;
   }
 
   Future<void> sendMessage({

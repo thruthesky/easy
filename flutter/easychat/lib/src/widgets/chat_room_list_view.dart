@@ -129,43 +129,173 @@ class ChatRoomAppBarState extends State<ChatRoomAppBar> {
   }
 }
 
-class ChatRoomMenuButton extends StatelessWidget {
+class ChatRoomMenuButton extends StatefulWidget {
   const ChatRoomMenuButton({
     super.key,
     required this.room,
   });
 
   final ChatRoomModel room;
+
+  @override
+  State<ChatRoomMenuButton> createState() => _ChatRoomMenuButtonState();
+}
+
+class _ChatRoomMenuButtonState extends State<ChatRoomMenuButton> {
   @override
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.menu),
       onPressed: () async {
-        final otherUser = room.group == true ? null : await EasyChat.instance.getOtherUserFromSingleChatRoom(room);
+        final otherUser =
+            widget.room.group == true ? null : await EasyChat.instance.getOtherUserFromSingleChatRoom(widget.room);
         if (context.mounted) {
           showGeneralDialog(
             context: context,
             pageBuilder: (context, _, __) {
-              return Scaffold(
-                appBar: AppBar(
-                  title: const Text('Chat Room'),
-                ),
-                body: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ListView(
-                    children: [
-                      if (room.group) ...[Text(room.name)],
-                      if (!room.group) ...[Text(otherUser!.displayName)],
-                      const Text('Leave'),
-                      InviteUserButton(room: room),
-                      ChatMembersButton(room: room),
-                    ],
-                  ),
-                ),
+              return ChatRoomMenuScreen(
+                room: widget.room,
+                otherUser: otherUser,
               );
             },
           );
         }
+      },
+    );
+  }
+}
+
+class ChatRoomMenuScreen extends StatefulWidget {
+  const ChatRoomMenuScreen({
+    super.key,
+    required this.room,
+    this.otherUser,
+  });
+
+  final ChatRoomModel room;
+  final UserModel? otherUser;
+
+  @override
+  State<ChatRoomMenuScreen> createState() => _ChatRoomMenuScreenState();
+}
+
+class _ChatRoomMenuScreenState extends State<ChatRoomMenuScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat Room'),
+      ),
+      body: ListView(
+        children: [
+          if (widget.room.group) ...[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(widget.room.name),
+            ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(widget.otherUser!.displayName),
+            ),
+          ],
+          if (!EasyChat.instance.isMaster(room: widget.room, uid: EasyChat.instance.uid)) ...[
+            LeaveButton(
+              room: widget.room,
+            ),
+          ],
+          InviteUserButton(
+            room: widget.room,
+            onInvite: (invitedUserUid) {
+              setState(() {});
+            },
+          ),
+          ChatSettingsButton(room: widget.room),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                child: Text('Members'),
+              ),
+              ChatRoomMembersListView(room: widget.room),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChatSettingsButton extends StatelessWidget {
+  const ChatSettingsButton({
+    super.key,
+    required this.room,
+  });
+
+  final ChatRoomModel room;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: const Text('Settings'),
+      onPressed: () {
+        showGeneralDialog(
+            context: context,
+            pageBuilder: (context, _, __) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Settings'),
+                ),
+              );
+            });
+      },
+    );
+  }
+}
+
+class LeaveButton extends StatelessWidget {
+  const LeaveButton({
+    super.key,
+    required this.room,
+  });
+
+  final ChatRoomModel room;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: const Text('Leave'),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Leaving Room"),
+              content: const Text("Are you sure you want to leave the group chat?"),
+              actions: [
+                TextButton(
+                  child: const Text("Leave"),
+                  onPressed: () {
+                    // TODO leave the room to prevent the error
+                    EasyChat.instance.leaveRoom(
+                        room: room,
+                        callback: () {
+                          // TODO or leave here
+                        });
+                    debugPrint("Leaving");
+                  },
+                ),
+                TextButton(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -181,21 +311,11 @@ class ChatMembersButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      child: const Text("Members"),
-      onPressed: () {
-        showGeneralDialog(
-          context: context,
-          pageBuilder: (context, _, __) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Chat Members'),
-              ),
-              body: ChatRoomMembersListView(room: room),
-            );
-          },
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat Members'),
+      ),
+      body: ChatRoomMembersListView(room: room),
     );
   }
 }
@@ -216,14 +336,21 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: widget.room.users.length, // Manage the state of this
+      shrinkWrap: true,
+      physics: const ClampingScrollPhysics(),
+      itemCount: widget.room.users.length,
       itemBuilder: (context, index) {
         return FutureBuilder(
           future: EasyChat.instance.getUser(widget.room.users[index]),
           builder: (context, userSnapshot) {
             return ListTile(
               title: Text(userSnapshot.data?.displayName ?? ''),
-              subtitle: Text(userSnapshot.data?.uid ?? ''),
+              // subtitle: Text(userSnapshot.data?.uid ?? ''),
+              subtitle: Text(widget.room.master == userSnapshot.data?.uid
+                  ? 'Master'
+                  : widget.room.moderators.contains(userSnapshot.data?.uid)
+                      ? 'Moderator'
+                      : ''),
               leading: (userSnapshot.data?.photoUrl ?? '').isEmpty
                   ? null
                   : CircleAvatar(
@@ -238,12 +365,9 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (EasyChat.instance.canRemove(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance.canRemove(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
-                              // If we have to separate this UI, we have to remanage the state
-                              child: Text(FirebaseAuth.instance.currentUser!.uid == userSnapshot.data!.uid
-                                  ? 'Leave Group'
-                                  : 'Remove from the Group'),
+                              child: const Text('Remove from the Group'),
                               onPressed: () {
                                 EasyChat.instance.removeUserFromRoom(
                                   room: widget.room,
@@ -258,9 +382,8 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                               },
                             ),
                           ],
-                          if (EasyChat.instance.canSetUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance.canSetUserAsModerator(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
-                              // TODO should separate to manage the state
                               child: const Text("Add as a Moderator"),
                               onPressed: () {
                                 EasyChat.instance.setUserAsModerator(
@@ -268,7 +391,7 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                                   uid: userSnapshot.data!.uid,
                                   callback: () {
                                     setState(() {
-                                      widget.room.moderators.remove(userSnapshot.data!.uid);
+                                      widget.room.moderators.add(userSnapshot.data!.uid);
                                     });
                                     Navigator.pop(context);
                                   },
@@ -277,7 +400,8 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                               },
                             )
                           ],
-                          if (EasyChat.instance.canRemoveUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance
+                              .canRemoveUserAsModerator(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
                               child: const Text("Remove as a Moderator"),
                               onPressed: () {
@@ -313,9 +437,11 @@ class InviteUserButton extends StatelessWidget {
   const InviteUserButton({
     super.key,
     required this.room,
+    this.onInvite,
   });
 
   final ChatRoomModel room;
+  final Function(String invitedUserUid)? onInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +455,13 @@ class InviteUserButton extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Invite Users'),
               ),
-              body: InviteUserListView(room: room),
+              body: InviteUserListView(
+                // ! Is it better to relisten here? Will relistening, be a problem with number of reads?
+                room: room,
+                onInvite: (uid) {
+                  onInvite?.call(uid);
+                },
+              ),
             );
           },
         );
@@ -342,9 +474,11 @@ class InviteUserListView extends StatefulWidget {
   const InviteUserListView({
     super.key,
     required this.room,
+    this.onInvite,
   });
 
   final ChatRoomModel room;
+  final Function(String invitedUserUid)? onInvite;
 
   @override
   State<InviteUserListView> createState() => _InviteUserListViewState();
@@ -378,6 +512,7 @@ class _InviteUserListViewState extends State<InviteUserListView> {
                 setState(() {
                   widget.room.users.add(user.uid);
                 });
+                widget.onInvite?.call(user.uid);
               });
             },
           );

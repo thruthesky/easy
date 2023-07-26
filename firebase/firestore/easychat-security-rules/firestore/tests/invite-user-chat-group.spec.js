@@ -22,7 +22,7 @@ describe("Firestore security test adding a user in chat room", () => {
         assert.ok(doc.data().users.includes(b.uid));
     });
 
-    it("User A inviting user B to an open room made by user A -> succeed", async () => {
+    it("User A inviting user B to a closed room made by user A -> succeed", async () => {
         // A creating open room
         const roomRef = await createChatRoom(a, { master: a.uid, users: [a.uid], open: false, group: true });
         // A inviting B
@@ -45,7 +45,6 @@ describe("Firestore security test adding a user in chat room", () => {
         const roomRef = await admin()
             .collection("easychat")
             .add(tempChatRoomData({ master: a.uid, moderators: [d.uid], users: [a.uid, b.uid, d.uid], open: true, group: true }));
-
         // B inviting C
         await firebase.assertSucceeds(
             db(b)
@@ -53,12 +52,6 @@ describe("Firestore security test adding a user in chat room", () => {
                 .doc(roomRef.id)
                 .update({ users: firebase.firestore.FieldValue.arrayUnion(c.uid) })
         );
-        // const doc2 = await db(b)
-        //     .collection("easychat")
-        //     .doc(roomRef.id)
-        //     .get();
-        // // User C can be invited by B because GC is open.
-        // assert.ok(doc2.data().users.includes(c.uid));
     });
 
     it("User B inviting user C to an open room where B does not belong in this room -> failure", async () => {
