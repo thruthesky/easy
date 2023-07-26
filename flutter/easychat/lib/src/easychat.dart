@@ -66,17 +66,14 @@ class EasyChat {
   }
 
   /// Get a chat room with the given user uid (1:1 chat)
-  ///
-  ///
+  /// ! This will expectedly throw an error if we are trying to get a non existing record.
   Future<ChatRoomModel> getSingleChatRoom(String uid) async {
     final roomId = getSingleChatRoomId(uid);
     final snapshot = await roomDoc(roomId).get();
     return ChatRoomModel.fromDocumentSnapshot(snapshot);
   }
 
-  ///
-  ///
-  ///
+  /// Get Chat room if exists, create the chatroom if not exist yet
   Future<ChatRoomModel> getOrCreateSingleChatRoom(String uid) async {
     try {
       return await EasyChat.instance.getSingleChatRoom(uid);
@@ -133,6 +130,14 @@ class EasyChat {
     await roomDoc(room.id).update({
       'users': FieldValue.arrayUnion([uid])
     });
+  }
+
+  Future<void> leaveRoom({required ChatRoomModel room, Function()? callback}) async {
+    await roomDoc(room.id).update({
+      'moderators': FieldValue.arrayRemove([uid]),
+      'users': FieldValue.arrayRemove([uid])
+    });
+    callback?.call();
   }
 
   Future<void> removeUserFromRoom({required ChatRoomModel room, required String uid, Function()? callback}) async {

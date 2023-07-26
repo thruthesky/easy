@@ -186,31 +186,70 @@ class _ChatRoomMenuScreenState extends State<ChatRoomMenuScreen> {
       appBar: AppBar(
         title: const Text('Chat Room'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            if (widget.room.group) ...[Text(widget.room.name)],
-            if (!widget.room.group) ...[Text(widget.otherUser!.displayName)],
-            const LeaveButton(),
-            InviteUserButton(
-              room: widget.room,
-              onInvite: (invitedUserUid) {
-                setState(() {});
-              },
+      body: ListView(
+        children: [
+          if (widget.room.group) ...[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(widget.room.name),
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Members'),
-                  ChatRoomMembersListView(room: widget.room),
-                ],
-              ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(widget.otherUser!.displayName),
             ),
           ],
-        ),
+          if (!EasyChat.instance.isMaster(room: widget.room, uid: EasyChat.instance.uid)) ...[
+            LeaveButton(
+              room: widget.room,
+            ),
+          ],
+          InviteUserButton(
+            room: widget.room,
+            onInvite: (invitedUserUid) {
+              setState(() {});
+            },
+          ),
+          ChatSettingsButton(room: widget.room),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                child: Text('Members'),
+              ),
+              ChatRoomMembersListView(room: widget.room),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class ChatSettingsButton extends StatelessWidget {
+  const ChatSettingsButton({
+    super.key,
+    required this.room,
+  });
+
+  final ChatRoomModel room;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: const Text('Settings'),
+      onPressed: () {
+        showGeneralDialog(
+            context: context,
+            pageBuilder: (context, _, __) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Settings'),
+                ),
+              );
+            });
+      },
     );
   }
 }
@@ -218,7 +257,10 @@ class _ChatRoomMenuScreenState extends State<ChatRoomMenuScreen> {
 class LeaveButton extends StatelessWidget {
   const LeaveButton({
     super.key,
+    required this.room,
   });
+
+  final ChatRoomModel room;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +277,12 @@ class LeaveButton extends StatelessWidget {
                 TextButton(
                   child: const Text("Leave"),
                   onPressed: () {
-                    // TODO Leave group
+                    // TODO leave the room to prevent the error
+                    EasyChat.instance.leaveRoom(
+                        room: room,
+                        callback: () {
+                          // TODO or leave here
+                        });
                     debugPrint("Leaving");
                   },
                 ),
@@ -298,7 +345,12 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
           builder: (context, userSnapshot) {
             return ListTile(
               title: Text(userSnapshot.data?.displayName ?? ''),
-              subtitle: Text(userSnapshot.data?.uid ?? ''),
+              // subtitle: Text(userSnapshot.data?.uid ?? ''),
+              subtitle: Text(widget.room.master == userSnapshot.data?.uid
+                  ? 'Master'
+                  : widget.room.moderators.contains(userSnapshot.data?.uid)
+                      ? 'Moderator'
+                      : ''),
               leading: (userSnapshot.data?.photoUrl ?? '').isEmpty
                   ? null
                   : CircleAvatar(
@@ -332,7 +384,6 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                           ],
                           if (EasyChat.instance.canSetUserAsModerator(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
-                              // TODO should separate to manage the state
                               child: const Text("Add as a Moderator"),
                               onPressed: () {
                                 EasyChat.instance.setUserAsModerator(
@@ -340,7 +391,7 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                                   uid: userSnapshot.data!.uid,
                                   callback: () {
                                     setState(() {
-                                      widget.room.moderators.remove(userSnapshot.data!.uid);
+                                      widget.room.moderators.add(userSnapshot.data!.uid);
                                     });
                                     Navigator.pop(context);
                                   },
@@ -405,6 +456,7 @@ class InviteUserButton extends StatelessWidget {
                 title: const Text('Invite Users'),
               ),
               body: InviteUserListView(
+                // ! Is it better to relisten here? Will relistening, be a problem with number of reads?
                 room: room,
                 onInvite: (uid) {
                   onInvite?.call(uid);
