@@ -1,9 +1,4 @@
 
-// export interface Config {
-//     userCollectionName: string;
-//     setDisabledUserField: boolean;
-//     syncCustomClaimsToUserDocument: boolean;
-// }
 
 
 export class Config {
@@ -11,12 +6,17 @@ export class Config {
         process.env.USER_COLLECTION_NAME || 'users';
     static setDisabledUserField: boolean = process.env.SET_DISABLED_USER_FIELD === 'yes';
     static syncCustomClaimsToUserDocument: boolean = process.env.SYNC_CUSTOM_CLAIMS_TO_USER_DOCUMENT === 'yes';
+    static createUserDocument: boolean = process.env.CREATE_USER_DOCUMENT === 'yes';
+    static deleteUserDocument: boolean = process.env.DELETE_USER_DOCUMENT === 'yes';
+
 
     static json(): Record<string, any> {
         return {
             userCollectionName: this.userCollectionName,
             setDisabledUserField: this.setDisabledUserField,
             syncCustomClaimsToUserDocument: this.syncCustomClaimsToUserDocument,
+            createUserDocument: this.createUserDocument,
+            deleteUserDocument: this.deleteUserDocument,
         };
     }
 };

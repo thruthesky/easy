@@ -17,6 +17,9 @@ import {
 import * as functions from "firebase-functions";
 import { CommandModel } from "./models/command.model";
 import { ChangeType, getChangeType } from "./utils";
+import { Config } from "./config";
+import { UserModel } from "./models/user.model";
+import { UserRecord } from "firebase-admin/auth";
 // import { FirestoreEventType } from "./defines";
 
 
@@ -24,8 +27,7 @@ initializeApp();
 // const db = getFirestore();
 
 
-// FirestoreEvent 는 DocumentSnapshot 과 documentId 를 가지는 타입이다. Definition 을 참고한다.
-
+//
 export const easyCommand = functions.firestore.document("easy-commands/{documentId}")
   .onWrite(async (change: functions.Change<DocumentSnapshot>): Promise<WriteResult | undefined | null> => {
     const changeType = getChangeType(change);
@@ -48,3 +50,26 @@ export const easyCommand = functions.firestore.document("easy-commands/{document
 
     return null;
   });
+
+
+/**
+ * Creates a user document when a new user account is created.
+ */
+export const createUserDocument = functions.auth
+  .user()
+  .onCreate(async (user: UserRecord): Promise<WriteResult | void> => {
+    if (Config.createUserDocument == false) {
+      return;
+    }
+    return UserModel.createDocument(user.uid, UserModel.popuplateUserFields(user));
+  });
+
+export const deleteUserDocument = functions.auth
+  .user()
+  .onDelete(async (user: UserRecord): Promise<WriteResult | void> => {
+    if (Config.deleteUserDocument == false) {
+      return;
+    }
+    return UserModel.deleteDocument(user.uid);
+  });
+

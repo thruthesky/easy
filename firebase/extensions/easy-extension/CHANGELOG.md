@@ -1,81 +1,18 @@
+## Version 0.1.1
+
+First public release
+
+
+## Version 0.1.0
+
+First beta release.
+add - User document creation/deletion options.
+add - Working commands in this release `update_custom_claims`, `disable_user`, `enable_user`, `delete_user`, `get_user`.
+
 ## Version 0.0.22
 
 add - `disable_user` command is added.
 fix - `update_custom_claims` is updated to sync back the claims to user document.
-
-
-## Version 0.0.21
-
-fix - test
-
-
-## Version 0.0.20
-
-fix - change it on write
-
-## Version 0.0.19
-
-fix - no firestore update
-
-## Version 0.0.18
-
-fix - build test
-
-
-## Version 0.0.17
-
-fix - build test
-
-## Version 0.0.15
-
-fix - data
-
-## Version 0.0.14
-
-fix - add datastore.owner
-
-
-## Version 0.0.13
-
-fix - add role
-
-## Version 0.0.12
-
-fix - add role
-
-
-## Version 0.0.11
-
-fix - add role
-
-
-## Version 0.0.10
-
-fix - 1st gen
-
-
-## Version 0.0.9
-
-fix - configuration
-
-## Version 0.0.8
-
-fix - function name
-
-
-## Version 0.0.7
-
-fix - command collection path
-
-
-## Version 0.0.6
-
-fix - command collection path
-
-
-## Version 0.0.5
-
-fix - source code url
 
 ## Version 0.0.4
 

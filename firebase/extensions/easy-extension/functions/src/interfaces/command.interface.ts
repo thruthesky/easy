@@ -2,8 +2,10 @@ import { Config } from "../config";
 
 export interface Command {
     // command list
-    command: "update_custom_claims" | "user_exists" | "disable_user";
-    uid: string;
+    command: "update_custom_claims" | "disable_user" | "enable_user" | "delete_user" | "get_user";
+    uid?: string;
+    by?: string;
+    value?: string;
 
     // command Options
     claims?: UpdateCustomClaimsOptions;
