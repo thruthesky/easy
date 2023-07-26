@@ -12,20 +12,28 @@
 
 See the change logs for the change of each version.
 
+- [Beta (0.1.0-beta.0)](https://console.firebase.google.com/project/_/extensions/install?ref=jaehosong/easy-extension@0.1.0-beta.0)
 - [Alpha (0.0.21-alpha.1)](https://console.firebase.google.com/u/0/project/_/extensions/install?ref=jaehosong%2Feasy-extension@0.0.22-alpha.0)
+
+
+## Options
+
+* `CREATE_USER_DOCUMENT` will create user's document when a user is registering(first login).
+* `DELETE_USER_DOCUMENT` will delete user's document when a user is deleted from Firebase Auth.
 
 ## Command list
 
 * Currently supported commands are
   * `update_custom_claims`
   * `disable_user`
-
-* Commands that will be supported in next version
   * `enable_user`
-  * `user_exists`
+  * `get_user`
   * `delete_user`
-  * `like` - like button in post, comment. The security rule must allow users to command.
 
+
+
+
+* listen `eventarc` and update it into a document. For instance, after image processing, listen the event and update it on a document.
 
 ### Updating auth custom claims
 
@@ -74,6 +82,199 @@ See the change logs for the change of each version.
   - Use this to know if the user is disabled.
 
 
+- Request
+
+```ts
+{
+  command: 'delete_user',
+  uid: '--user-uid--',
+}
+```
+
+
+### Enable user
+
+- If the user is enabled, the `disabled` field will be deleted from user doc.
+
+- Request
+
+```ts
+{
+  command: 'enable_user',
+  uid: '--user-uid--',
+}
+```
+
+
+### Delete user
+
+- This will delete the user account.
+- If the `DELETE_USER_DOCUMENT` options is set to yes, then when the user is being deleted, the user document will be deleted also.
+
+
+- Request
+
+```ts
+{
+  command: 'delete_user',
+  uid: '--user-uid--',
+}
+```
+
+
+### Get user
+
+- You can get the user by uid, email, phone number.
+- You can use it for checking if the user exsits or not.
+
+- Request
+```ts
+{
+  command: 'get_user',
+  by: 'uid',
+  value: '--user-uid--'
+}
+```
+```ts
+{
+  command: 'get_user',
+  by: 'email',
+  value: 'thruthesky@gmail.com'
+}
+```
+```ts
+{
+  command: 'get_user',
+  by: 'phoneNumber',
+  value: '+821012345678'
+}
+```
+
+- Result
+
+```ts
+{
+  command: 'get_user',
+  by: '...request-field....',
+  value: '...request-value...',
+  claims: { level: 13 },
+  response: {
+    status: 'success',
+    data: {
+      ...possible user fields like uid, email, phoneNumber, photoURL, creationTime, disabled...
+    }
+    timestamp: Timestamp { _seconds: 1690096498, _nanoseconds: 507000000 }
+  }
+}
+```
+
+- Example of real success result
+
+```ts
+{
+  by: 'email',
+  value: 'zv6ffg@gmail.com',
+  command: 'get_user',
+  response: {
+    data: { uid: 'npwpG9xdbYVtaCJBwvMfRRjopgi1', email: 'zv6ffg@gmail.com' },
+    status: 'success',
+    timestamp: Timestamp { _seconds: 1690293479, _nanoseconds: 676000000 }
+  },
+  config: {
+    setDisabledUserField: false,
+    createUserDocument: false,
+    syncCustomClaimsToUserDocument: false,
+    userCollectionName: 'users',
+    deleteUserDocument: false
+  }
+}
+```
+
+If user not exists, the status will be error.
+```ts
+{
+  command: 'get_user',
+  by: '...request-field....',
+  value: '...request-value...',
+  claims: { level: 13 },
+  response: {
+    status: 'success',
+    data: {
+      ...possible user fields like uid, email, phoneNumber, photoURL, creationTime, disabled...
+    }
+    timestamp: Timestamp { _seconds: 1690096498, _nanoseconds: 507000000 }
+  }
+}
+```
+
+- Example of real error result
+
+```ts
+{
+  by: '---xxx---',
+  value: 'q6uavr@gmail.com',
+  command: 'get_user',
+  response: {
+    code: 'get_user/invalid-field',
+    message: 'command execution error.',
+    status: 'error',
+    timestamp: Timestamp { _seconds: 1690293590, _nanoseconds: 313000000 }
+  },
+  config: {
+    setDisabledUserField: false,
+    createUserDocument: false,
+    syncCustomClaimsToUserDocument: false,
+    userCollectionName: 'users',
+    deleteUserDocument: false
+  }
+}
+```
+
+
+- Firebase error code and message will be stored in the result like below if there is error on firebase auth.
+
+```ts
+{
+  by: 'email',
+  value: 'xxxxxxxxx@email.com',
+  command: 'get_user',
+  response: {
+    code: 'auth/user-not-found',
+    message: 'There is no user record corresponding to the provided identifier.',
+    status: 'error',
+    timestamp: Timestamp { _seconds: 1690293808, _nanoseconds: 736000000 }
+  },
+  config: {
+    setDisabledUserField: false,
+    createUserDocument: false,
+    syncCustomClaimsToUserDocument: false,
+    userCollectionName: 'users',
+    deleteUserDocument: false
+  }
+}
+```
+
+
+```ts
+{
+  by: 'email',
+  value: '......',
+  command: 'get_user',
+  response: {
+    code: 'auth/invalid-email',
+    message: 'The email address is improperly formatted.',
+    status: 'error',
+    timestamp: Timestamp { _seconds: 1690293767, _nanoseconds: 42000000 }
+  },
+  config: {
+    setDisabledUserField: false,
+    createUserDocument: false,
+    syncCustomClaimsToUserDocument: false,
+    userCollectionName: 'users',
+    deleteUserDocument: false
+  }
+}
+```
 
 ## Error handling
 
@@ -81,8 +282,9 @@ See the change logs for the change of each version.
 
 ```ts
 {
-  options: { uid: '.... wrong uid ....', level: 13 },
   command: 'update_custom_claims',
+  uid: '--wrong-uid--',
+  claims: { level: 13 },
   response: {
     code: 'auth/user-not-found',
     message: 'There is no user record corresponding to the provided identifier.',
@@ -107,7 +309,6 @@ See the change logs for the change of each version.
 ```
 
 
-
 ## Deploy
 
 
@@ -116,6 +317,21 @@ See the change logs for the change of each version.
 
 
 ## Unit Testing
+
+
+### Testing on Local Emulators
+
+- We do unit testing on local emulator and on real Firebase.
+
+- To test the input of the configuration based on extension.yaml, run the following
+  - `cd functions/integration_tests && firebase emulators:start`
+  - You can open `https://localhost:4000` to see everything works fine especially with the configuration of `*.env` based on the `extension.yaml` settings.
+
+
+### Testing on real Firebase
+
+- Test files are under `functions/tests`. This test files work with real Firebase. So, you may need provide a Firebase for test use.
+  - You can run the emulator on the same folder where `functions/firebase.json` resides, and run the tests on the same folder.
 
 - To run the sample test,
   - `npm run test:index`

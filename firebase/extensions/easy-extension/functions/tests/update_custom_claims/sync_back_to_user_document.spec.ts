@@ -50,7 +50,7 @@ describe("Sync back custom claims", () => {
 
         await CommandModel.execute(await ref.get());
 
-        const userData = await UserModel.get(user.uid);
+        const userData = await UserModel.getDocument(user.uid);
         expect(userData?.claims?.level).equal(13);
     });
 
@@ -80,7 +80,7 @@ describe("Sync back custom claims", () => {
         } satisfies Command);
 
         await CommandModel.execute(await ref.get());
-        const userData = await UserModel.get(user.uid);
+        const userData = await UserModel.getDocument(user.uid);
         expect(userData?.claims).equal(undefined);
     });
 
