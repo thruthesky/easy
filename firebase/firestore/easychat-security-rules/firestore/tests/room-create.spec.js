@@ -74,12 +74,14 @@ describe("Firestore security test chat room", () => {
     );
   });
 
-  it("Can't create a single chat room with duplicated user uids -> failure", async () => {
-    await firebase.assertFails(
-      db(a)
-        .collection("easychat")
-        .add(tempChatRoomData({ master: a.uid, users: [a.uid, a.uid], group: false }))
-    );
-  });
+
+  /// ! We can talk to ourselves - as confirmed by Mr. Song.
+  // it("Can't create a single chat room with duplicated user uids -> failure", async () => {
+  //   await firebase.assertFails(
+  //     db(a)
+  //       .collection("easychat")
+  //       .add(tempChatRoomData({ master: a.uid, users: [a.uid, a.uid], group: false }))
+  //   );
+  // });
 });
 
