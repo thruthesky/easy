@@ -79,7 +79,7 @@ service cloud.firestore {
         ||
         ( isRoomUser() && onlyUpdating(['lastMessage', 'noOfNewMessages']) )
         ||
-        ( isOpen() && ((isRoomUser() && onlyAdding('users')) || isJoining()) )
+        ( isOpen() && ((isRoomUser() && onlyAddingOneElement('users')) || isJoining()) )
       ;
 
       allow delete: if false;
@@ -155,7 +155,7 @@ function userSize() {
 // Adding an element to the array field.
 //
 // This must add an elemnt only. Not replacing any other element. It does unique element check.
-function onlyAdding(arrayField) {
+function onlyAddingOneElement(arrayField) {
   return
     resource.data[arrayField].toSet().intersection(request.resource.data[arrayField].toSet()) == resource.data[arrayField].toSet()
     &&
@@ -220,7 +220,7 @@ function isLeaving() {
 // Return true if the user is adding himself to the room.
 function isJoining() {
   return
-    onlyAdding('users')
+    onlyAddingOneElement('users')
     && 
     request.resource.data.users.toSet().difference(resource.data.users.toSet()) == [request.auth.uid].toSet();
 }
