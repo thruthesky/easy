@@ -1,3 +1,8 @@
+## Version 0.1.1
+
+First public release
+
+
 ## Version 0.1.0
 
 First beta release.

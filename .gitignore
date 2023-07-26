@@ -6,6 +6,11 @@ firebase_options.dart
 
 **/.DS_Store
 
+# Compiled JavaScript files
+lib/**/*.js
+lib/**/*.js.map
+
+
 # Miscellaneous
 *.class
 *.log
