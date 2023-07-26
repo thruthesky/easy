@@ -178,34 +178,41 @@ class EasyChat {
     return room.master == uid || room.moderators.contains(uid);
   }
 
+  /// Check if user can be removed in the group
   ///
-  ///
-  ///
-  canRemove({required ChatRoomModel room, required String uid}) {
+  canRemove({required ChatRoomModel room, required String userUid}) {
     // One cannot remove himself
-    if (FirebaseAuth.instance.currentUser!.uid == uid) return false;
+    if (userUid == uid) return false;
 
     // Only master and moderator can remove
     if (isAdmin(room)) {
       // admin cannot remove the master or moderators
-      if (isMaster(room: room, uid: uid)) return false;
-      if (isModerator(room: room, uid: uid)) return false;
+      if (isMaster(room: room, uid: userUid)) return false;
+      if (isModerator(room: room, uid: userUid)) return false;
       return true;
     }
 
     return false;
   }
 
-  canSetUserAsModerator({required ChatRoomModel room, required String uid}) {
-    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
-        !isMaster(room: room, uid: uid) &&
-        !isModerator(room: room, uid: uid);
+  canSetUserAsModerator({required ChatRoomModel room, required String userUid}) {
+    // If the current user is not a master, don't allow
+    if (!isMaster(room: room, uid: uid)) return false;
+
+    // If the user to set as moderator is not a master allow
+    if (!isMaster(room: room, uid: userUid)) return true;
+
+    return false;
   }
 
-  canRemoveUserAsModerator({required ChatRoomModel room, required String uid}) {
-    return isMaster(room: room, uid: FirebaseAuth.instance.currentUser!.uid) &&
-        !isMaster(room: room, uid: uid) &&
-        isModerator(room: room, uid: uid);
+  canRemoveUserAsModerator({required ChatRoomModel room, required String userUid}) {
+    // If the current user is not a master, don't allow
+    if (!isMaster(room: room, uid: uid)) return false;
+
+    // If the user is a moderator, can remove
+    if (isModerator(room: room, uid: userUid)) return true;
+
+    return false;
   }
 
   Future<void> sendMessage({

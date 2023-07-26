@@ -238,12 +238,10 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (EasyChat.instance.canRemove(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance.canRemove(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
                               // If we have to separate this UI, we have to remanage the state
-                              child: Text(FirebaseAuth.instance.currentUser!.uid == userSnapshot.data!.uid
-                                  ? 'Leave Group'
-                                  : 'Remove from the Group'),
+                              child: const Text('Remove from the Group'),
                               onPressed: () {
                                 EasyChat.instance.removeUserFromRoom(
                                   room: widget.room,
@@ -258,7 +256,7 @@ class _ChatRoomMembersListViewState extends State<ChatRoomMembersListView> {
                               },
                             ),
                           ],
-                          if (EasyChat.instance.canSetUserAsModerator(room: widget.room, uid: userSnapshot.data!.uid)) ...[
+                          if (EasyChat.instance.canSetUserAsModerator(room: widget.room, userUid: userSnapshot.data!.uid)) ...[
                             TextButton(
                               // TODO should separate to manage the state
                               child: const Text("Add as a Moderator"),
